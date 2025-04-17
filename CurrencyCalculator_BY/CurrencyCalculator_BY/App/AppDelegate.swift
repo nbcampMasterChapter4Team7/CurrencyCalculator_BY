@@ -3,7 +3,7 @@
 //  CurrencyCalculator_BY
 //
 //  Created by iOS study on 4/16/25.
-//
+//  앱 생명 주기를 관리하는 파일로 앱 시작, 종료 시 필요한 설정과 초기화 담당
 
 import UIKit
 import CoreData

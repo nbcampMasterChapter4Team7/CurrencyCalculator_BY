@@ -3,7 +3,7 @@
 //  CurrencyCalculator_BY
 //
 //  Created by iOS study on 4/16/25.
-//
+//  기본 UI 구성 및 화면 전환
 
 import UIKit
 
