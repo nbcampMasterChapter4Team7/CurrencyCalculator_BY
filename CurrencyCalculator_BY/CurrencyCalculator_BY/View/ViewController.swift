@@ -10,16 +10,17 @@ import SnapKit
 import Alamofire
 
 class ViewController: UIViewController {
-    //가로 방향 지원 설정 (거꾸로 세로 지원X)
+    // ===== 가로 방향 지원 설정 (거꾸로 세로 지원X) =====
     override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
         return [.portrait, .landscapeRight, .landscapeLeft]
     }
-    //자동 회전 허용
+    
+    // ===== 자동 회전 허용 =====
     override var shouldAutorotate: Bool {
         return true
     }
     
-    //API, json 사용을 위한 변수(튜풀, 딕셔너리) 선언
+    // ===== API, json 사용을 위한 변수(튜플, 딕셔너리) 선언 =====
     var rates: [(key: String, value: Double)] = []
     var currencyCountryMapping: [String: String] = [:]
     
@@ -45,6 +46,7 @@ class ViewController: UIViewController {
         fetchCurrencyRates()
     }
     
+    // ===== UI 구성 요소를 설정하고 배치 =====
     private func configureUI() {
         view.backgroundColor = .white
         [searchBar, tableView].forEach { view.addSubview($0) }
@@ -60,6 +62,7 @@ class ViewController: UIViewController {
         }
     }
     
+    // ===== JSON 파일에서 통화-국가 매핑 데이터를 로드 =====
     private func loadCurrencyCountryMapping() {
         if let path = Bundle.main.path(forResource: "CurrencyCountryMapping", ofType: "json"),
            let data = try? Data(contentsOf: URL(fileURLWithPath: path)),
@@ -70,6 +73,7 @@ class ViewController: UIViewController {
         }
     }
 
+    // ===== API를 통해 환율 데이터를 가져오고 테이블 뷰 갱신 =====
     private func fetchCurrencyRates() {
         CurrencyService.shared.fetchData { [weak self] result in
             guard let self = self else { return }
@@ -86,6 +90,7 @@ class ViewController: UIViewController {
         }
     }
     
+    // ===== 데이터를 불러오지 못했을 때 오류 경고창 표시 =====
     private func showFetchErrorAlert(error: AFError) {
         let alert = UIAlertController(title: "오류", message: "데이터를 불러올 수 없습니다.", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "확인", style: .default))

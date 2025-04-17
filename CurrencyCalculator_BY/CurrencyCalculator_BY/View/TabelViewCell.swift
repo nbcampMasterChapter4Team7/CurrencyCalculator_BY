@@ -11,6 +11,7 @@ import SnapKit
 final class TableViewCell: UITableViewCell {
     static let id = "TableViewCell"
     
+    // ===== 수직으로 정렬된 라벨들을 담는 스택뷰 생성 =====
     private let labelStackView: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .vertical
@@ -18,12 +19,14 @@ final class TableViewCell: UITableViewCell {
         return stackView
     }()
     
+    // ===== 통화 정보를 표시하는 라벨 생성 =====
     private let currencyLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         return label
     }()
     
+    // ===== 국가 정보를 표시하는 라벨 생성 =====
     private let countryLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 14)
@@ -31,6 +34,7 @@ final class TableViewCell: UITableViewCell {
         return label
     }()
     
+    // ===== 환율 정보를 표시하는 라벨 생성 =====
     private let rateLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 16)
@@ -38,12 +42,12 @@ final class TableViewCell: UITableViewCell {
         return label
     }()
     
-    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         configureUI()
     }
     
+    // ===== UI 구성 요소를 설정하고 배치 =====
     private func configureUI() {
         [labelStackView, rateLabel].forEach { contentView.addSubview($0) }
         [currencyLabel, countryLabel].forEach{ labelStackView.addArrangedSubview($0) }
@@ -58,9 +62,9 @@ final class TableViewCell: UITableViewCell {
             make.centerY.equalToSuperview()
             make.leading.equalTo(labelStackView.snp.trailing).offset(16)
         }
-        
     }
     
+    // ===== 셀에 통화, 국가, 환율 정보를 설정 =====
     func configureCell(currency: String, country: String, rate: String) {
         currencyLabel.text = currency
         countryLabel.text = country

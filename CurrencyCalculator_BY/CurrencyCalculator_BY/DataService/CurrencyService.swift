@@ -9,11 +9,15 @@ import UIKit
 import Alamofire
 
 final class CurrencyService {
+    
+    // ===== 싱글톤 패턴으로 CurrencyService 인스턴스 생성 =====
     static let shared = CurrencyService()
     
     private init() {}
     
+    // ===== API로부터 데이터를 가져오는 함수 =====
     func fetchData(completion: @escaping(Result<CurrencyResult, AFError>) -> Void) {
+        // ===== API 요청을 위한 URL 설정 =====
         let urlComponents = URLComponents(string: "https://open.er-api.com/v6/latest/USD")
         
         guard let url = urlComponents?.url else {
@@ -21,7 +25,7 @@ final class CurrencyService {
             return
         }
         
-        // API 요청을 보내고, 응답을 처리하는 부분
+        // ===== 성공적으로 데이터를 가져왔을 때 완료 핸들러 호출, 실패 시 오류처리 =====
         AF.request(url).responseDecodable(of: CurrencyResult.self) { response in
             switch response.result {
             case .success(let currencyResult):
