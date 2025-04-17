@@ -8,5 +8,6 @@
 //  사용은 Constants.변수명
 
 struct Constants {
+    
 }
 
