@@ -7,8 +7,19 @@
 
 import UIKit
 import SnapKit
+import Alamofire
 
 class ViewController: UIViewController {
+    //가로 방향 지원 설정 (거꾸로 세로 지원X)
+    override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
+        return [.portrait, .landscapeRight, .landscapeLeft]
+    }
+    //자동 회전 허용
+    override var shouldAutorotate: Bool {
+        return true
+    }
+    
+    //API, json 사용을 위한 변수(튜풀, 딕셔너리) 선언
     var rates: [(key: String, value: Double)] = []
     var currencyCountryMapping: [String: String] = [:]
     
@@ -70,8 +81,14 @@ class ViewController: UIViewController {
                     self.tableView.reloadData()
                 }
             case .failure(let error):
-                print("Failed to fetch rates: \(error)")
+                self.showFetchErrorAlert(error: error)
             }
         }
+    }
+    
+    private func showFetchErrorAlert(error: AFError) {
+        let alert = UIAlertController(title: "오류", message: "데이터를 불러올 수 없습니다.", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "확인", style: .default))
+        present(alert, animated: true)
     }
 }
