@@ -34,27 +34,29 @@ class ViewController: UIViewController {
     private lazy var tableView: UITableView = {
         let tableView = UITableView()
         tableView.dataSource = self
-        tableView.delegate = self
         tableView.register(TableViewCell.self, forCellReuseIdentifier: TableViewCell.id)
         return tableView
     }()
     
     lazy var filterLabel: UILabel = {
-         let label = UILabel()
-         label.text = "검색 결과 없음"
-         label.textColor = .gray
-         label.textAlignment = .center
-         label.isHidden = true
-         return label
-     }()
-
+        let label = UILabel()
+        label.text = "검색 결과 없음"
+        label.textColor = .gray
+        label.textAlignment = .center
+        label.isHidden = true
+        return label
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         print("화면 로드됨")
         searchBar.delegate = self
+        tableView.delegate = self
         configureUI()
         loadCurrencyCountryMapping()
         fetchCurrencyRates()
+        navigationController?.navigationBar.prefersLargeTitles = true
+        navigationItem.title = "환율 정보"
     }
     
     // ===== UI 구성 요소를 설정하고 배치 =====
