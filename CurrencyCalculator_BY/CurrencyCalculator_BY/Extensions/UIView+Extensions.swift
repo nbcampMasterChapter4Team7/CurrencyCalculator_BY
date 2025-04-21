@@ -6,7 +6,7 @@
 //
 import UIKit
 
-extension ViewController: UITableViewDataSource, UITableViewDelegate {
+extension CurrencyViewController: UITableViewDataSource, UITableViewDelegate {
     
     // ===== Lv.4 테이블 뷰에서 선택된 셀에 따라 CalculatorViewController로 이동하고 데이터를 전달 =====
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -56,3 +56,4 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
         60
     }
 }
+
