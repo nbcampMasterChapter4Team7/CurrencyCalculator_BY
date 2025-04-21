@@ -13,6 +13,7 @@ import SnapKit
 class CalculatorViewController: UIViewController {
     var selectedCurrency: String?
     var selectedCountry: String?
+    var viewModel = CalculatorViewModel()
     
     // ===== 수직으로 정렬된 라벨들을 담는 스택뷰 생성 =====
     private let labelStackView: UIStackView = {
@@ -27,7 +28,6 @@ class CalculatorViewController: UIViewController {
     private let currencyLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 24, weight: .bold)
-        label.text = "나는환율코드라벨!"
         return label
     }()
     
@@ -36,8 +36,6 @@ class CalculatorViewController: UIViewController {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 16)
         label.textColor = .gray
-        label.text = "나는국가라벨!!"
-        
         return label
     }()
     
@@ -47,7 +45,7 @@ class CalculatorViewController: UIViewController {
         textField.keyboardType = .decimalPad
         textField.borderStyle = .roundedRect
         textField.textAlignment = .center
-        textField.placeholder = "금액을 입력하세요"
+        textField.placeholder = "달러(USD)를 입력하세요"
         return textField
     }()
     
@@ -85,6 +83,7 @@ class CalculatorViewController: UIViewController {
     
     // ===== UI 구성 요소를 설정하고 배치 =====
     private func configureUI() {
+        convertButton.addTarget(self, action: #selector(convertButtonTapped), for: .touchUpInside)
         [currencyLabel, countryLabel].forEach { labelStackView.addArrangedSubview($0) }
         [labelStackView, amountTextField, convertButton, resultLabel].forEach { view.addSubview($0) }
         
@@ -114,5 +113,18 @@ class CalculatorViewController: UIViewController {
     private func updateLabelsWithSelectedCurrency() {
         currencyLabel.text = selectedCurrency ?? "환율 코드 없음"
         countryLabel.text = selectedCountry ?? "국가 정보 없음"
+    }
+    
+    @objc
+    private func convertButtonTapped() {
+        if let resultText = viewModel.calculateConvertedAmount(amount: amountTextField.text ?? "") {
+            resultLabel.text = resultText
+        
+            if resultText == "금액을 입력해주세요" || resultText == "올바른 숫자를 입력해주세요" {
+                let alert = UIAlertController(title: "입력 오류", message: resultText, preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "확인", style: .default, handler: nil))
+                present(alert, animated: true, completion: nil)
+            }
+        }
     }
 }
