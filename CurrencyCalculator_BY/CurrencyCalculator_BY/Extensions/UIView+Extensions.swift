@@ -12,13 +12,17 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let calculatorVC = CalculatorViewController()
         
+        /// LV.4 선택된 환율 정보를 가져와 calculaotrVC에 전달
         let selectedCurrency = fillteredRates?[indexPath.row] ?? rates[indexPath.row]
         calculatorVC.selectedCurrency = selectedCurrency.key
         
-        // ===== calculatorVC에 국가 정보를 전달(라벨 출력을 위함) =====
+        /// LV.4 라벨 출력을 위해 calculatorVC에 국가 정보를 전달
         if let country = currencyCountryMapping[selectedCurrency.key] {
             calculatorVC.selectedCountry = country
         }
+        
+        /// LV.5 계산기 사용을 위해 calculatorVC에 환율 정보를 전달
+        calculatorVC.viewModel.exchangeRate = selectedCurrency.value
         
         navigationController?.pushViewController(calculatorVC, animated: true)
     }
