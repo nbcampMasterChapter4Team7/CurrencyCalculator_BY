@@ -16,24 +16,32 @@ final class CurrencyService {
     private init() {}
     
     // ===== API로부터 데이터를 가져오는 함수 =====
-    func fetchData(completion: @escaping(Result<CurrencyResult, AFError>) -> Void) {
-        // ===== API 요청을 위한 URL 설정 =====
-        let urlComponents = URLComponents(string: "https://open.er-api.com/v6/latest/USD")
+    func fetchRates(completion: @escaping (Result<[(key: String, value: Double)], Error>) -> Void) {
+        // Alamofire를 사용하여 API 호출하고, 결과를 completion 핸들러로 전달
+        let url = "https://open.er-api.com/v6/latest/USD"
         
-        guard let url = urlComponents?.url else {
-            print("잘못된 url")
-            return
-        }
-        
-        // ===== 성공적으로 데이터를 가져왔을 때 완료 핸들러 호출, 실패 시 오류처리 =====
-        AF.request(url).responseDecodable(of: CurrencyResult.self) { response in
+        AF.request(url).responseData { response in
             switch response.result {
-            case .success(let currencyResult):
-                completion(.success(currencyResult))
+            case .success(let data):
+                do {
+                    let decoder = JSONDecoder()
+                    let currencyResult = try decoder.decode(CurrencyResult.self, from: data)
+                    
+                    // rates를 [(key: String, value: Double)] 형식으로 변환
+                    let ratesArray = currencyResult.rates.map { (key: $0.key, value: $0.value) }
+                    completion(.success(ratesArray))
+                    
+                } catch let DecodingError.typeMismatch(type, context) {
+                    print("타입 불일치 오류 발생: \(type), \(context.debugDescription)")
+                    completion(.failure(DecodingError.typeMismatch(type, context)))
+                } catch {
+                    print("디코딩 중 알 수 없는 오류 발생: \(error)")
+                    completion(.failure(error))
+                }
             case .failure(let error):
-                print("데이터 가져오기 실패: \(error)")
                 completion(.failure(error))
             }
         }
     }
 }
+
