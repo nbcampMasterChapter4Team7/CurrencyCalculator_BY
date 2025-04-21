@@ -13,7 +13,7 @@ import SnapKit
 class CalculatorViewController: UIViewController {
     var selectedCurrency: String?
     var selectedCountry: String?
-    var viewModel = CalculatorViewModel()
+    var viewModel = CalculatorViewModel() ///  뷰모델 인스턴스 생성
     
     // ===== 수직으로 정렬된 라벨들을 담는 스택뷰 생성 =====
     private let labelStackView: UIStackView = {
@@ -115,11 +115,12 @@ class CalculatorViewController: UIViewController {
         countryLabel.text = selectedCountry ?? "국가 정보 없음"
     }
     
+    // ===== Lv.5 버튼 동작 시 viewModel에서 계산 로직 동작, Alert으로 입력 오류 처리 =====
     @objc
     private func convertButtonTapped() {
         if let resultText = viewModel.calculateConvertedAmount(amount: amountTextField.text ?? "") {
             resultLabel.text = resultText
-        
+            
             if resultText == "금액을 입력해주세요" || resultText == "올바른 숫자를 입력해주세요" {
                 let alert = UIAlertController(title: "입력 오류", message: resultText, preferredStyle: .alert)
                 alert.addAction(UIAlertAction(title: "확인", style: .default, handler: nil))
