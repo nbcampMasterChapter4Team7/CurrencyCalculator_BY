@@ -18,7 +18,7 @@ extension CurrencyViewController: UITableViewDataSource, UITableViewDelegate {
         calculatorVC.selectedCurrency = selectedCurrency.key
         
         /// LV.4 라벨 출력을 위해 calculatorVC에 국가 정보를 전달
-        if let country = currencyCountryMapping[selectedCurrency.key] {
+        if let country = viewModel.currencyCountryMapping[selectedCurrency.key] {
             calculatorVC.selectedCountry = country
         }
         

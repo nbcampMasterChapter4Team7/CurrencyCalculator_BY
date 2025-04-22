@@ -23,14 +23,6 @@ class CurrencyViewController: UIViewController {
         return true
     }
     
-    // ===== API, JSON, 필터링 사용을 위한 변수(튜플, 딕셔너리) 선언 =====
-    /// rates: 환율 데이터를 저장하는 튜플 배열
-    /// currencyCountryMapping: 통화 코드와 국가 이름 매핑을 저장하는 딕셔너리
-    /// fillteredRates: 검색 결과를 저장하는 튜플 배열(필터링된 데이터)
-    var rates: [(key: String, value: Double)] = []
-    var currencyCountryMapping: [String: String] = [:]
-    var fillteredRates: [(key: String, value: Double)]?
-    
     // ===== 검색 바 생성 =====
     private let searchBar: UISearchBar = {
         let searchBar = UISearchBar()
@@ -86,7 +78,7 @@ class CurrencyViewController: UIViewController {
             make.top.equalTo(searchBar.snp.bottom)
             make.leading.trailing.bottom.equalTo(view.safeAreaLayoutGuide)
         }
-
+        
         filterLabel.snp.makeConstraints { make in
             make.centerX.centerY.equalToSuperview()
         }
@@ -94,18 +86,18 @@ class CurrencyViewController: UIViewController {
     
     // ===== API를 통해 환율 데이터를 가져오고 테이블 뷰 갱신 =====
     private func bindViewModel() {
-            viewModel.action = { [weak self] action in
-                switch action {
-                case .updateState(let state):
-                    self?.tableView.reloadData()
-                    self?.filterLabel.isHidden = !(state.filteredRates != nil && state.filteredRates!.isEmpty)
-                    if let errorMessage = state.errorMessage {
-                        self?.showAlert(message: errorMessage)
-                    }
+        viewModel.action = { [weak self] action in
+            switch action {
+            case .updateState(let state):
+                self?.tableView.reloadData()
+                self?.filterLabel.isHidden = !(state.filteredRates != nil && state.filteredRates!.isEmpty)
+                if let errorMessage = state.errorMessage {
+                    self?.showAlert(message: errorMessage)
                 }
             }
         }
-
+    }
+    
     // ===== 데이터를 불러오지 못했을 때 오류 경고창 표시 =====
     private func showAlert(message: String) {
         let alert = UIAlertController(title: "오류", message: message, preferredStyle: .alert)

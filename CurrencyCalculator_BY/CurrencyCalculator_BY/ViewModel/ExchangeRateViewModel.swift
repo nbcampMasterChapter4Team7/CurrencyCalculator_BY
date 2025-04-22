@@ -66,7 +66,7 @@ class ExchangeRateViewModel: ViewModelProtocol {
             print("Failed to load CurrencyCountryMapping.json")
         }
     }
-
+    
     
     // ===== 검색어 업데이트 =====
     func updateSearchText(_ searchText: String) {
