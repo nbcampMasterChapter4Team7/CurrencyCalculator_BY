@@ -89,17 +89,13 @@ class CurrencyViewController: UIViewController {
         ExchangeRateVM.action = { [weak self] action in
             switch action {
             case .updateState(let state):
-                /// 테이블 뷰 데이터 리로드
                 self?.tableView.reloadData()
-                /// 필터 라벨의 표시 여부 설정
                 self?.filterLabel.isHidden = !(state.filteredRates != nil && state.filteredRates!.isEmpty)
-                /// 오류 메시지가 있을 경우 알림 표시
                 if let errorMessage = state.errorMessage {
                     self?.showAlert(message: errorMessage)
                 }
             case .updateBookmarks:
-                /// 즐겨찾기가 업데이트되면 테이블 뷰 리로드
-                self?.tableView.reloadData()
+                self?.tableView.reloadData() // 즐겨찾기 업데이트 시 테이블 뷰 다시 로드
             }
         }
     }

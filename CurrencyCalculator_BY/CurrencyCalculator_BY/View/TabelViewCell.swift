@@ -1,10 +1,3 @@
-//
-//  TabelViewCell.swift
-//  CurrencyCalculator_BY
-//
-//  Created by iOS study on 4/17/25.
-//
-
 import UIKit
 import SnapKit
 
@@ -44,6 +37,7 @@ final class TableViewCell: UITableViewCell {
     private let starButton: UIButton = {
         let button = UIButton()
         button.setImage(UIImage(systemName: "star"), for: .normal)
+        button.setImage(UIImage(systemName: "star.fill"), for: .selected)
         button.tintColor = .systemYellow
         return button
     }()
@@ -92,16 +86,13 @@ final class TableViewCell: UITableViewCell {
     @objc
     private func starButtonTapped() {
         ExchangeRateVM?.toggleBookmark(currencyCode: currencyCode)
+        ExchangeRateVM?.action?(.updateBookmarks)
         updateBookmarksButton()
     }
     
     @objc
     private func updateBookmarksButton() {
-        if ExchangeRateVM?.state.Bookmarks.contains(currencyCode) == true {
-            starButton.setImage(UIImage(systemName: "star.fill"), for: .normal)
-        } else {
-            starButton.setImage(UIImage(systemName: "star"), for: .normal)
-        }
+        starButton.isSelected = ExchangeRateVM?.state.Bookmarks.contains(currencyCode) ?? false
     }
     
     required init?(coder: NSCoder) {

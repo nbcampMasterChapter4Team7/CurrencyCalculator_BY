@@ -1,9 +1,3 @@
-//  CurrencyCalculator_BY
-//
-//  Created by iOS study on 4/17/25.
-//  환율 화면의 비즈니스 로직을 처리하는 뷰 모델
-//  데이터 변환과 필터링 업데이트를 담당
-
 import Foundation
 import UIKit
 import CoreData
@@ -12,17 +6,17 @@ import CoreData
 class ExchangeRateViewModel: ViewModelProtocol {
     // ===== 뷰 모델에서 발생할 수 있는 액션 정의 =====
     enum Action {
-        case updateState(State)
-        case updateBookmarks
+        case updateState(State) // 상태 업데이트 액션
+        case updateBookmarks // 즐겨찾기 업데이트 액션
     }
     
     // ===== 뷰 모델의 상태를 나타내는 구조체 정의 =====
     struct State {
-        var rates: [(key: String, value: Double)] = []
-        var filteredRates: [(key: String, value: Double)]? = nil
-        var errorMessage: String? = nil
-        var searchText: String = ""
-        var Bookmarks: [String] = []
+        var rates: [(key: String, value: Double)] = [] // 환율 데이터 저장
+        var filteredRates: [(key: String, value: Double)]? = nil // 필터링된 환율 데이터 저장
+        var errorMessage: String? = nil // 오류 메시지 저장
+        var searchText: String = "" // 검색어 저장
+        var Bookmarks: [String] = [] // 즐겨찾기된 통화 코드 저장
     }
     
     /// 액션을 처리하는 클로저
@@ -82,19 +76,43 @@ class ExchangeRateViewModel: ViewModelProtocol {
     
     // ===== 환율 필터링 =====
     private func filterRates(searchText: String) {
-        if searchText.trimmingCharacters(in: .whitespaces).isEmpty {
-            state.filteredRates = nil
-        } else {
-            /// 검색어에 해당하는 환율 필터링
-            let results = state.rates.filter {
-                $0.key.lowercased().contains(searchText.lowercased()) ||
-                (currencyCountryMapping[$0.key]?.lowercased().contains(searchText.lowercased()) ?? false)
+        let trimmedSearchText = searchText.trimmingCharacters(in: .whitespaces)
+        let allRates = state.rates
+
+        if trimmedSearchText.isEmpty {
+            // 즐겨찾기된 데이터와 일반 데이터를 분리하여 정렬
+            state.filteredRates = allRates.sorted { (first, second) in
+                let isFirstBookmarked = state.Bookmarks.contains(first.key)
+                let isSecondBookmarked = state.Bookmarks.contains(second.key)
+                
+                // 즐겨찾기된 데이터는 상단에 배치하고, 각각 알파벳 오름차순으로 정렬
+                if isFirstBookmarked == isSecondBookmarked {
+                    return first.key < second.key
+                }
+                return isFirstBookmarked && !isSecondBookmarked
             }
-            state.filteredRates = results
+        } else {
+            // 검색어에 따라 필터링 및 정렬
+            let results = allRates.filter {
+                $0.key.lowercased().contains(trimmedSearchText.lowercased()) ||
+                (currencyCountryMapping[$0.key]?.lowercased().contains(trimmedSearchText.lowercased()) ?? false)
+            }
+            
+            // 검색 결과에서도 즐겨찾기된 데이터는 상단에 오도록 정렬
+            state.filteredRates = results.sorted { (first, second) in
+                let isFirstBookmarked = state.Bookmarks.contains(first.key)
+                let isSecondBookmarked = state.Bookmarks.contains(second.key)
+                
+                if isFirstBookmarked == isSecondBookmarked {
+                    return first.key < second.key
+                }
+                return isFirstBookmarked && !isSecondBookmarked
+            }
         }
         /// 상태 업데이트 액션 호출
         action?(.updateState(state))
     }
+
     
     // ===== 즐겨찾기 기능 통합 =====
     func toggleBookmark(currencyCode: String) {
@@ -104,7 +122,24 @@ class ExchangeRateViewModel: ViewModelProtocol {
             addBookmarks(currencyCode: currencyCode) // 즐겨찾기 추가
         }
         fetchBookmarks() // 즐겨찾기 목록 갱신
+        sortAndFilterRates() // 즐겨찾기 갱신 후 정렬 및 필터링
         action?(.updateBookmarks) // 즐겨찾기 업데이트 액션 호출
+    }
+    
+    // ===== 환율 정렬 및 필터링 =====
+    private func sortAndFilterRates() {
+        let allRates = state.rates
+        state.filteredRates = allRates.sorted { (first, second) in
+            let isFirstBookmarked = state.Bookmarks.contains(first.key)
+            let isSecondBookmarked = state.Bookmarks.contains(second.key)
+            
+            // 즐겨찾기된 데이터는 상단에 배치하고, 각각 알파벳 오름차순으로 정렬
+            if isFirstBookmarked == isSecondBookmarked {
+                return first.key < second.key
+            }
+            return isFirstBookmarked && !isSecondBookmarked
+        }
+        action?(.updateState(state)) // 상태 업데이트 액션 호출
     }
     
     // ===== 즐겨찾기 추가 =====
@@ -150,7 +185,6 @@ class ExchangeRateViewModel: ViewModelProtocol {
             /// 즐겨찾기 데이터를 상태에 업데이트
             let bookmarks = try context.fetch(request)
             state.Bookmarks = bookmarks.map { $0.currencyCode ?? "" }
-            action?(.updateBookmarks) // 즐겨찾기 업데이트 액션 호출
         } catch {
             /// 불러오기 실패 시 콘솔에 오류 메시지 출력
             print("Failed to fetch bookmarks: \(error)")
