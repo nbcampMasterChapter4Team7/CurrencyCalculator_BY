@@ -13,7 +13,6 @@ extension CurrencyViewController: UITableViewDataSource, UITableViewDelegate {
         let calculatorVC = CalculatorViewController()
         
         /// LV.4 선택된 환율 정보를 가져와 calculaotrVC에 전달
-        /// 수정됨: fillteredRates와 rates를 viewModel.state에서 가져오도록 변경
         let selectedCurrency = viewModel.state.filteredRates?[indexPath.row] ?? viewModel.state.rates[indexPath.row]
         calculatorVC.selectedCurrency = selectedCurrency.key
         
@@ -23,10 +22,13 @@ extension CurrencyViewController: UITableViewDataSource, UITableViewDelegate {
         }
         
         /// LV.5 계산기 사용을 위해 calculatorVC에 환율 정보를 전달
-        calculatorVC.viewModel.exchangeRate = selectedCurrency.value
+        calculatorVC.calculatorVM.exchangeRate = selectedCurrency.value
+        // currency 속성도 설정
+        calculatorVC.calculatorVM.currency = selectedCurrency.key
         
         navigationController?.pushViewController(calculatorVC, animated: true)
     }
+
     
     // ===== Lv.3 테이블 뷰의 섹션당 행 수 반환 =====
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {

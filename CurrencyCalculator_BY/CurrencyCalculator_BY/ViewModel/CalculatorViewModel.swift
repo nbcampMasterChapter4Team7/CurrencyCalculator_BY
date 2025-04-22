@@ -20,8 +20,8 @@ class CalculatorViewModel: ViewModelProtocol {
     
     var action: ((Action) -> Void)?
     var state = State(resultText: "계산 결과가 여기에 표시됩니다")
-    
     var exchangeRate: Double = 0.0
+    var currency: String = "" // 통화 코드를 저장할 속성 추가
     
     // ===== 환율 계산 메서드 =====
     func calculateConvertedAmount(amount: String) {
@@ -36,6 +36,8 @@ class CalculatorViewModel: ViewModelProtocol {
         }
         
         let convertedAmount = (amountValue * exchangeRate).rounded(toPlaces: 2)
-        action?(.updateResult("\(convertedAmount)"))
+        // 결과값 형식 수정 (통화 기호 포함)
+        action?(.updateResult("$\(String(format: "%.2f", amountValue)) → \(convertedAmount) \(currency)"))
+
     }
 }

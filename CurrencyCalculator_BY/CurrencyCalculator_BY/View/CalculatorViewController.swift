@@ -13,7 +13,7 @@ import SnapKit
 class CalculatorViewController: UIViewController {
     var selectedCurrency: String?
     var selectedCountry: String?
-    var viewModel = CalculatorViewModel() ///  뷰모델 인스턴스 생성
+    var calculatorVM = CalculatorViewModel() ///  뷰모델 인스턴스 생성
     
     // ===== 수직으로 정렬된 라벨들을 담는 스택뷰 생성 =====
     private let labelStackView: UIStackView = {
@@ -114,11 +114,12 @@ class CalculatorViewController: UIViewController {
     private func updateLabelsWithSelectedCurrency() {
         currencyLabel.text = selectedCurrency ?? "환율 코드 없음"
         countryLabel.text = selectedCountry ?? "국가 정보 없음"
+        calculatorVM.currency = selectedCurrency ?? ""
     }
     
     // ===== Lv 6. ViewModel Action 설정 =====
     private func setupViewModelAction() {
-         viewModel.action = { [weak self] action in
+        calculatorVM.action = { [weak self] action in
              switch action {
              case .updateResult(let resultText):
                  self?.resultLabel.text = resultText
@@ -134,7 +135,9 @@ class CalculatorViewController: UIViewController {
     // ===== Lv.6 버튼 동작 시 viewModel에서 계산 로직 동작-> ViewModel로 변경 =====
     @objc
     private func convertButtonTapped() {
-        viewModel.calculateConvertedAmount(amount: amountTextField.text ?? "")
-
+        guard let amount = amountTextField.text,
+              let selectedCurrency = selectedCurrency else { return }
+        
+        calculatorVM.calculateConvertedAmount(amount: amount)
     }
 }
