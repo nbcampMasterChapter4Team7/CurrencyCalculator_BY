@@ -79,6 +79,7 @@ class CalculatorViewController: UIViewController {
         navigationItem.title = "환율 계산기"
         configureUI()
         updateLabelsWithSelectedCurrency()
+        setupViewModelAction()
     }
     
     // ===== UI 구성 요소를 설정하고 배치 =====
@@ -115,17 +116,25 @@ class CalculatorViewController: UIViewController {
         countryLabel.text = selectedCountry ?? "국가 정보 없음"
     }
     
-    // ===== Lv.5 버튼 동작 시 viewModel에서 계산 로직 동작, Alert으로 입력 오류 처리 =====
+    // ===== Lv 6. ViewModel Action 설정 =====
+    private func setupViewModelAction() {
+         viewModel.action = { [weak self] action in
+             switch action {
+             case .updateResult(let resultText):
+                 self?.resultLabel.text = resultText
+                 if resultText == "금액을 입력해주세요" || resultText == "올바른 숫자를 입력해주세요" {
+                     let alert = UIAlertController(title: "입력 오류", message: resultText, preferredStyle: .alert)
+                     alert.addAction(UIAlertAction(title: "확인", style: .default, handler: nil))
+                     self?.present(alert, animated: true, completion: nil)
+                 }
+             }
+         }
+     }
+    
+    // ===== Lv.6 버튼 동작 시 viewModel에서 계산 로직 동작-> ViewModel로 변경 =====
     @objc
     private func convertButtonTapped() {
-        if let resultText = viewModel.calculateConvertedAmount(amount: amountTextField.text ?? "") {
-            resultLabel.text = resultText
-            
-            if resultText == "금액을 입력해주세요" || resultText == "올바른 숫자를 입력해주세요" {
-                let alert = UIAlertController(title: "입력 오류", message: resultText, preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "확인", style: .default, handler: nil))
-                present(alert, animated: true, completion: nil)
-            }
-        }
+        viewModel.calculateConvertedAmount(amount: amountTextField.text ?? "")
+
     }
 }

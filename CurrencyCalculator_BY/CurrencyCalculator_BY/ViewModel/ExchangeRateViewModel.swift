@@ -61,7 +61,6 @@ class ExchangeRateViewModel: ViewModelProtocol {
            let data = try? Data(contentsOf: URL(fileURLWithPath: path)),
            let json = try? JSONSerialization.jsonObject(with: data, options: .mutableLeaves) as? [String: String] {
             currencyCountryMapping = json
-            print("CurrencyCountryMapping loaded: \(currencyCountryMapping)") // 로드된 데이터 출력
         } else {
             print("Failed to load CurrencyCountryMapping.json")
         }
