@@ -11,11 +11,9 @@ import SnapKit
 final class TableViewCell: UITableViewCell {
     static let id = "TableViewCell"
     
-    private var ExchangeRateVM = ExchangeRateViewModel()
-    private let BookmarkVM = BookmarkViewModel()
+    private var ExchangeRateVM: ExchangeRateViewModel?
     private var currencyCode: String = ""
     
-    // ===== 수직으로 정렬된 라벨들을 담는 스택뷰 생성 =====
     private let labelStackView: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .vertical
@@ -23,14 +21,12 @@ final class TableViewCell: UITableViewCell {
         return stackView
     }()
     
-    // ===== 통화 정보를 표시하는 라벨 생성 =====
     private let currencyLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         return label
     }()
     
-    // ===== 국가 정보를 표시하는 라벨 생성 =====
     private let countryLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 14)
@@ -38,7 +34,6 @@ final class TableViewCell: UITableViewCell {
         return label
     }()
     
-    // ===== 환율 정보를 표시하는 라벨 생성 =====
     private let rateLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 16)
@@ -46,7 +41,6 @@ final class TableViewCell: UITableViewCell {
         return label
     }()
     
-    // ===== 즐겨찾기 상태를 나타내는 별 버튼 생성 =====
     private let starButton: UIButton = {
         let button = UIButton()
         button.setImage(UIImage(systemName: "star"), for: .normal)
@@ -60,7 +54,6 @@ final class TableViewCell: UITableViewCell {
         setupActions()
     }
     
-    // ===== UI 구성 요소를 설정하고 배치 =====
     private func configureUI() {
         [labelStackView, rateLabel, starButton].forEach { contentView.addSubview($0) }
         [currencyLabel, countryLabel].forEach{ labelStackView.addArrangedSubview($0) }
@@ -83,42 +76,28 @@ final class TableViewCell: UITableViewCell {
         }
     }
     
-    // ===== 셀에 통화, 국가, 환율 정보를 설정 =====
-    func configureCell(currency: String, country: String, rate: String) {
+    func configureCell(currency: String, country: String, rate: String, viewModel: ExchangeRateViewModel) {
         currencyLabel.text = currency
         countryLabel.text = country
         rateLabel.text = rate
         currencyCode = currency
-        setupViewModelAction() // 뷰모델 액션 설정
-        updateBookmarksButton() // 버튼 이미지 업데이트
+        ExchangeRateVM = viewModel
+        updateBookmarksButton()
     }
     
-    // ===== 버튼 액션 설정 =====
     private func setupActions() {
         starButton.addTarget(self, action: #selector(starButtonTapped), for: .touchUpInside)
     }
     
-    // ===== viewModel Action 설정 =====
-    func setupViewModelAction() {
-        BookmarkVM.action = { [weak self] action in
-            switch action {
-            case .updateBookmarks: self?.updateBookmarksButton()
-            }
-        }
-        BookmarkVM.fetchBookmarks()
-    }
-    
-    // ===== 즐겨찾기 버튼 눌렀을 때 동작 =====
     @objc
     private func starButtonTapped() {
-        BookmarkVM.toggleBookmark(currencyCode: currencyCode)
-        updateBookmarksButton() /// 버튼 이미지 업데이트
+        ExchangeRateVM?.toggleBookmark(currencyCode: currencyCode)
+        updateBookmarksButton()
     }
     
-    // ===== 현재 즐겨찾기 상태에 따라 버튼의 이미지를 업데이트 =====
     @objc
     private func updateBookmarksButton() {
-        if BookmarkVM.state.Bookmarks.contains(currencyCode) {
+        if ExchangeRateVM?.state.Bookmarks.contains(currencyCode) == true {
             starButton.setImage(UIImage(systemName: "star.fill"), for: .normal)
         } else {
             starButton.setImage(UIImage(systemName: "star"), for: .normal)
