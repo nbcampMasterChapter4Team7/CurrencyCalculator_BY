@@ -10,34 +10,35 @@ import UIKit
 import SnapKit
 import Alamofire
 
+// ===== 환율 정보를 관리하는 뷰 모델 인스턴스 생성 =====
 class CurrencyViewController: UIViewController {
-    var viewModel: ExchangeRateViewModel!
+    var ExchangeRateVM = ExchangeRateViewModel()
     
-    // ===== 가로 방향 지원 설정 (거꾸로 세로 지원X) =====
+    // ===== 지원되는 인터페이스 방향 설정 =====
     override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
         return [.portrait, .landscapeRight, .landscapeLeft]
     }
     
-    // ===== 자동 회전 허용 =====
+    // ===== 자동 회전 허용 여부 설정 =====
     override var shouldAutorotate: Bool {
         return true
     }
     
-    // ===== 검색 바 생성 =====
+    // ===== 검색 바 설정 =====
     private let searchBar: UISearchBar = {
         let searchBar = UISearchBar()
         searchBar.placeholder = "통화 검색"
         return searchBar
     }()
     
-    // ===== 테이블 뷰 생성 및 설정 =====
+    // ===== 테이블 뷰 설정 및 셀 등록 =====
     private lazy var tableView: UITableView = {
         let tableView = UITableView()
         tableView.register(TableViewCell.self, forCellReuseIdentifier: TableViewCell.id)
         return tableView
     }()
     
-    // ===== 검색 결과가 없을 때 표시할 라벨 생성 =====
+    // ===== 검색 결과가 없을 때 표시할 라벨 설정 =====
     lazy var filterLabel: UILabel = {
         let label = UILabel()
         label.text = "검색 결과 없음"
@@ -47,27 +48,26 @@ class CurrencyViewController: UIViewController {
         return label
     }()
     
-    // ===== 뷰가 로드될 때 초기 설정 수행 =====
+    // ===== 뷰가 로드될 때 호출되는 메서드 =====
     override func viewDidLoad() {
         super.viewDidLoad()
-        viewModel = ExchangeRateViewModel()
-        bindViewModel()
-        viewModel.fetchData()
+        bindViewModel() // 뷰 모델과 바인딩
+        ExchangeRateVM.fetchData() // 환율 데이터 가져오기
         
         searchBar.delegate = self
         tableView.delegate = self
         tableView.dataSource = self
         
-        configureUI()
+        configureUI() // UI 구성
     }
     
-    // ===== UI 구성 요소를 설정하고 배치 =====
+    // ===== UI 구성 및 제약 조건 설정 =====
     private func configureUI() {
         navigationController?.navigationBar.prefersLargeTitles = true
         navigationItem.title = "환율 정보"
         view.backgroundColor = .white
-        tableView.addSubview(filterLabel)
-        [searchBar, tableView].forEach { view.addSubview($0) }
+        tableView.addSubview(filterLabel) // 필터 라벨을 테이블 뷰에 추가
+        [searchBar, tableView].forEach { view.addSubview($0) } // 검색 바와 테이블 뷰를 뷰에 추가
         
         searchBar.snp.makeConstraints { make in
             make.top.equalTo(view.safeAreaLayoutGuide)
@@ -84,9 +84,9 @@ class CurrencyViewController: UIViewController {
         }
     }
     
-    // ===== API를 통해 환율 데이터를 가져오고 테이블 뷰 갱신 =====
+    // ===== 뷰 모델과 바인딩 =====
     private func bindViewModel() {
-        viewModel.action = { [weak self] action in
+        ExchangeRateVM.action = { [weak self] action in
             switch action {
             case .updateState(let state):
                 self?.tableView.reloadData()
@@ -94,11 +94,13 @@ class CurrencyViewController: UIViewController {
                 if let errorMessage = state.errorMessage {
                     self?.showAlert(message: errorMessage)
                 }
+            case .updateBookmarks:
+                self?.tableView.reloadData() // 즐겨찾기 업데이트 시 테이블 뷰 다시 로드
             }
         }
     }
     
-    // ===== 데이터를 불러오지 못했을 때 오류 경고창 표시 =====
+    // ===== 오류 메시지를 표시하는 알림 생성 =====
     private func showAlert(message: String) {
         let alert = UIAlertController(title: "오류", message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "확인", style: .default))
@@ -106,9 +108,11 @@ class CurrencyViewController: UIViewController {
     }
 }
 
-// ===== Lv.3 SearchBar 필터링 기능 =====
+// ===== UISearchBarDelegate 확장 =====
 extension CurrencyViewController: UISearchBarDelegate {
+    // ===== 검색 바의 텍스트가 변경될 때 호출되는 메서드 =====
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        viewModel.updateSearchText(searchText)
+        /// 뷰 모델에 검색 텍스트 업데이트
+        ExchangeRateVM.updateSearchText(searchText)
     }
 }

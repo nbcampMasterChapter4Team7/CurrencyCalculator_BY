@@ -6,54 +6,61 @@
 //
 import UIKit
 
+// ===== CurrencyViewController에 UITableViewDataSource와 UITableViewDelegate를 확장 =====
 extension CurrencyViewController: UITableViewDataSource, UITableViewDelegate {
     
-    // ===== Lv.4 테이블 뷰에서 선택된 셀에 따라 CalculatorViewController로 이동하고 데이터를 전달 =====
+    // ===== 사용자가 테이블 뷰의 셀을 선택했을 때 호출됨 =====
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        /// CalculatorViewController 인스턴스 생성
         let calculatorVC = CalculatorViewController()
         
-        /// LV.4 선택된 환율 정보를 가져와 calculaotrVC에 전달
-        /// 수정됨: fillteredRates와 rates를 viewModel.state에서 가져오도록 변경
-        let selectedCurrency = viewModel.state.filteredRates?[indexPath.row] ?? viewModel.state.rates[indexPath.row]
+        /// 선택된 셀의 환율 정보를 가져옴
+        let selectedCurrency = ExchangeRateVM.state.filteredRates?[indexPath.row] ?? ExchangeRateVM.state.rates[indexPath.row]
         calculatorVC.selectedCurrency = selectedCurrency.key
         
-        /// LV.4 라벨 출력을 위해 calculatorVC에 국가 정보를 전달
-        if let country = viewModel.currencyCountryMapping[selectedCurrency.key] {
+        /// 선택된 셀의 국가 정보를 가져옴
+        if let country = ExchangeRateVM.currencyCountryMapping[selectedCurrency.key] {
             calculatorVC.selectedCountry = country
         }
         
-        /// LV.5 계산기 사용을 위해 calculatorVC에 환율 정보를 전달
-        calculatorVC.viewModel.exchangeRate = selectedCurrency.value
+        /// 선택된 환율 정보를 CalculatorViewController에 전달
+        calculatorVC.calculatorVM.exchangeRate = selectedCurrency.value
+        calculatorVC.calculatorVM.currency = selectedCurrency.key
         
+        /// CalculatorViewController로 화면 전환
         navigationController?.pushViewController(calculatorVC, animated: true)
     }
     
-    // ===== Lv.3 테이블 뷰의 섹션당 행 수 반환 =====
+    // ===== 테이블 뷰의 섹션당 행 수를 반환 =====
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        /// 수정됨: fillteredRates와 rates를 viewModel.state에서 가져오도록 변경
-        if let filtered = viewModel.state.filteredRates {
+        /// 필터링된 환율 데이터가 있는 경우 해당 데이터의 개수를 반환
+        if let filtered = ExchangeRateVM.state.filteredRates {
             return filtered.isEmpty ? 0 : filtered.count
         } else {
-            return viewModel.state.rates.count
+            /// 필터링된 데이터가 없으면 전체 환율 데이터의 개수를 반환
+            return ExchangeRateVM.state.rates.count
         }
     }
     
-    // ===== Lv.3 각 행에 대한 셀을 구성하고 반환 =====
+    // ===== 각 행에 대한 셀을 구성하고 반환 =====
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        /// TableViewCell을 재사용 큐에서 가져옴
         guard let cell = tableView.dequeueReusableCell(withIdentifier: TableViewCell.id, for: indexPath) as? TableViewCell else {
             return UITableViewCell()
         }
-        /// 수정됨: fillteredRates와 rates를 viewModel.state에서 가져오도록 변경
-        let dataSource = viewModel.state.filteredRates ?? viewModel.state.rates
+        /// 데이터 소스를 결정 (필터링된 데이터 또는 전체 데이터)
+        let dataSource = ExchangeRateVM.state.filteredRates ?? ExchangeRateVM.state.rates
         let rate = dataSource[indexPath.row].value
         let currencyCode = dataSource[indexPath.row].key
-        let countryName = viewModel.currencyCountryMapping[currencyCode] ?? "Unknown"
-        cell.configureCell(currency: currencyCode, country: countryName, rate: String(format: "%.4f", rate))
+        let countryName = ExchangeRateVM.currencyCountryMapping[currencyCode] ?? "Unknown"
+        
+        /// 셀에 통화, 국가, 환율 정보를 설정
+        cell.configureCell(currency: currencyCode, country: countryName, rate: String(format: "%.4f", rate), viewModel: ExchangeRateVM)
         
         return cell
     }
     
-    // ===== Lv.2 각 행의 높이를 설정 =====
+    // ===== 각 행의 높이를 설정 =====
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         60
     }
