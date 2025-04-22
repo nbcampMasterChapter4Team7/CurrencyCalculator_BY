@@ -11,7 +11,8 @@ import SnapKit
 final class TableViewCell: UITableViewCell {
     static let id = "TableViewCell"
     
-    private let viewModel = BookmarkViewModel()
+    private var ExchangeRateVM = ExchangeRateViewModel()
+    private let BookmarkVM = BookmarkViewModel()
     private var currencyCode: String = ""
     
     // ===== 수직으로 정렬된 라벨들을 담는 스택뷰 생성 =====
@@ -99,25 +100,25 @@ final class TableViewCell: UITableViewCell {
     
     // ===== viewModel Action 설정 =====
     func setupViewModelAction() {
-        viewModel.action = { [weak self] action in
+        BookmarkVM.action = { [weak self] action in
             switch action {
             case .updateBookmarks: self?.updateBookmarksButton()
             }
         }
-        viewModel.fetchBookmarks()
+        BookmarkVM.fetchBookmarks()
     }
     
     // ===== 즐겨찾기 버튼 눌렀을 때 동작 =====
     @objc
     private func starButtonTapped() {
-        viewModel.toggleBookmark(currencyCode: currencyCode)
+        BookmarkVM.toggleBookmark(currencyCode: currencyCode)
         updateBookmarksButton() /// 버튼 이미지 업데이트
     }
     
     // ===== 현재 즐겨찾기 상태에 따라 버튼의 이미지를 업데이트 =====
     @objc
     private func updateBookmarksButton() {
-        if viewModel.state.Bookmarks.contains(currencyCode) {
+        if BookmarkVM.state.Bookmarks.contains(currencyCode) {
             starButton.setImage(UIImage(systemName: "star.fill"), for: .normal)
         } else {
             starButton.setImage(UIImage(systemName: "star"), for: .normal)

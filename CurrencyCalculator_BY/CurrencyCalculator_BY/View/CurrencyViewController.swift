@@ -11,7 +11,8 @@ import SnapKit
 import Alamofire
 
 class CurrencyViewController: UIViewController {
-    var viewModel: ExchangeRateViewModel!
+    var ExchangeRateVM = ExchangeRateViewModel()
+    var BookmarkVM = BookmarkViewModel()
     
     // ===== 가로 방향 지원 설정 (거꾸로 세로 지원X) =====
     override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
@@ -50,9 +51,8 @@ class CurrencyViewController: UIViewController {
     // ===== 뷰가 로드될 때 초기 설정 수행 =====
     override func viewDidLoad() {
         super.viewDidLoad()
-        viewModel = ExchangeRateViewModel()
         bindViewModel()
-        viewModel.fetchData()
+        ExchangeRateVM.fetchData()
         
         searchBar.delegate = self
         tableView.delegate = self
@@ -86,7 +86,7 @@ class CurrencyViewController: UIViewController {
     
     // ===== API를 통해 환율 데이터를 가져오고 테이블 뷰 갱신 =====
     private func bindViewModel() {
-        viewModel.action = { [weak self] action in
+        ExchangeRateVM.action = { [weak self] action in
             switch action {
             case .updateState(let state):
                 self?.tableView.reloadData()
@@ -109,6 +109,6 @@ class CurrencyViewController: UIViewController {
 // ===== Lv.3 SearchBar 필터링 기능 =====
 extension CurrencyViewController: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        viewModel.updateSearchText(searchText)
+        ExchangeRateVM.updateSearchText(searchText)
     }
 }
