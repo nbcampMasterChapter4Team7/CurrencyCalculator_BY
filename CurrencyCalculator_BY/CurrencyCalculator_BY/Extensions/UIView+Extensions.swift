@@ -13,11 +13,12 @@ extension CurrencyViewController: UITableViewDataSource, UITableViewDelegate {
         let calculatorVC = CalculatorViewController()
         
         /// LV.4 선택된 환율 정보를 가져와 calculaotrVC에 전달
-        let selectedCurrency = fillteredRates?[indexPath.row] ?? rates[indexPath.row]
+        /// 수정됨: fillteredRates와 rates를 viewModel.state에서 가져오도록 변경
+        let selectedCurrency = viewModel.state.filteredRates?[indexPath.row] ?? viewModel.state.rates[indexPath.row]
         calculatorVC.selectedCurrency = selectedCurrency.key
         
         /// LV.4 라벨 출력을 위해 calculatorVC에 국가 정보를 전달
-        if let country = currencyCountryMapping[selectedCurrency.key] {
+        if let country = viewModel.currencyCountryMapping[selectedCurrency.key] {
             calculatorVC.selectedCountry = country
         }
         
@@ -29,10 +30,11 @@ extension CurrencyViewController: UITableViewDataSource, UITableViewDelegate {
     
     // ===== Lv.3 테이블 뷰의 섹션당 행 수 반환 =====
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if let filtered = fillteredRates {
+        /// 수정됨: fillteredRates와 rates를 viewModel.state에서 가져오도록 변경
+        if let filtered = viewModel.state.filteredRates {
             return filtered.isEmpty ? 0 : filtered.count
         } else {
-            return rates.count
+            return viewModel.state.rates.count
         }
     }
     
@@ -41,19 +43,18 @@ extension CurrencyViewController: UITableViewDataSource, UITableViewDelegate {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: TableViewCell.id, for: indexPath) as? TableViewCell else {
             return UITableViewCell()
         }
-        let dataSource = fillteredRates ?? rates
+        /// 수정됨: fillteredRates와 rates를 viewModel.state에서 가져오도록 변경
+        let dataSource = viewModel.state.filteredRates ?? viewModel.state.rates
         let rate = dataSource[indexPath.row].value
         let currencyCode = dataSource[indexPath.row].key
-        let countryName = currencyCountryMapping[currencyCode] ?? "Unknown"
+        let countryName = viewModel.currencyCountryMapping[currencyCode] ?? "Unknown"
         cell.configureCell(currency: currencyCode, country: countryName, rate: String(format: "%.4f", rate))
         
         return cell
     }
-    
     
     // ===== Lv.2 각 행의 높이를 설정 =====
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         60
     }
 }
-

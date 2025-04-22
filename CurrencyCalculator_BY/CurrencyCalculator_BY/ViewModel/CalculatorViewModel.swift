@@ -8,20 +8,34 @@
 
 import Foundation
 
-class CalculatorViewModel {
+// ===== CalculatorViewModel 클래스 정의 =====
+class CalculatorViewModel: ViewModelProtocol {
+    enum Action {
+        case updateResult(String)
+    }
+    
+    struct State {
+        var resultText: String
+    }
+    
+    var action: ((Action) -> Void)?
+    var state = State(resultText: "계산 결과가 여기에 표시됩니다")
+    
     var exchangeRate: Double = 0.0
     
     // ===== 환율 계산 메서드 =====
-    func calculateConvertedAmount (amount: String) -> String? {
+    func calculateConvertedAmount(amount: String) {
         guard !amount.isEmpty else {
-            return "금액을 입력해주세요"
+            action?(.updateResult("금액을 입력해주세요"))
+            return
         }
         
         guard let amountValue = Double(amount) else {
-            return "올바른 숫자를 입력해주세요"
+            action?(.updateResult("올바른 숫자를 입력해주세요"))
+            return
         }
         
-        let convertedAmount = (amountValue * exchangeRate).rouned(toPlaces: 2)
-        return "\(convertedAmount)"
+        let convertedAmount = (amountValue * exchangeRate).rounded(toPlaces: 2)
+        action?(.updateResult("\(convertedAmount)"))
     }
 }
