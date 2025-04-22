@@ -10,16 +10,16 @@ import CoreData
 import UIKit
 
 class CoreDataService {
-    // 싱글톤 패턴 적용
+    // ===== 싱글톤 패턴 적용 =====
     static let shared = CoreDataService()
     private init() {}
 
-    // Core Data 컨텍스트 접근
+    // ===== Core Data 컨텍스트 접근 =====
     private var context: NSManagedObjectContext {
         return (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     }
 
-    // 데이터 저장 메서드
+    // ===== 데이터 저장 메서드 =====
     func savePreviousExchangeRate(currencyCode: String, rate: Double) -> Bool {
         let newRate = PreviousExchangeRate(context: context)
         newRate.currencyCode = currencyCode
@@ -34,7 +34,7 @@ class CoreDataService {
         }
     }
 
-    // 데이터 불러오기 메서드
+    // ===== 데이터 불러오기 메서드 =====
     func fetchPreviousExchangeRates() -> [PreviousExchangeRate]? {
         let fetchRequest: NSFetchRequest<PreviousExchangeRate> = PreviousExchangeRate.fetchRequest()
 
