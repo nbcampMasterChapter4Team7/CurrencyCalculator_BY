@@ -58,8 +58,7 @@ class CurrencyViewController: UIViewController {
     // ===== 뷰가 로드될 때 초기 설정 수행 =====
     override func viewDidLoad() {
         super.viewDidLoad()
-        loadCurrencyCountryMapping()
-        viewModel = ExchangeRateViewModel(currencyCountryMapping: currencyCountryMapping)
+        viewModel = ExchangeRateViewModel()
         bindViewModel()
         viewModel.fetchData()
         
@@ -93,18 +92,6 @@ class CurrencyViewController: UIViewController {
         }
     }
     
-    // ===== JSON 파일에서 통화-국가 매핑 데이터를 로드 =====
-    func loadCurrencyCountryMapping() {
-        /// CurrencyCountryMapping.json 파일을 읽어와 currencyCountryMapping 딕셔너리에 저장
-        if let path = Bundle.main.path(forResource: "CurrencyCountryMapping", ofType: "json"),
-           let data = try? Data(contentsOf: URL(fileURLWithPath: path)),
-           let json = try? JSONSerialization.jsonObject(with: data, options: .mutableLeaves) as? [String: String] {
-            currencyCountryMapping = json
-        } else {
-            print("Failed to load CurrencyCountryMapping.json")
-        }
-    }
-
     // ===== API를 통해 환율 데이터를 가져오고 테이블 뷰 갱신 =====
     private func bindViewModel() {
             viewModel.action = { [weak self] action in

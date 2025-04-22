@@ -47,7 +47,7 @@ extension CurrencyViewController: UITableViewDataSource, UITableViewDelegate {
         let dataSource = viewModel.state.filteredRates ?? viewModel.state.rates
         let rate = dataSource[indexPath.row].value
         let currencyCode = dataSource[indexPath.row].key
-        let countryName = currencyCountryMapping[currencyCode] ?? "Unknown"
+        let countryName = viewModel.currencyCountryMapping[currencyCode] ?? "Unknown"
         cell.configureCell(currency: currencyCode, country: countryName, rate: String(format: "%.4f", rate))
         
         return cell

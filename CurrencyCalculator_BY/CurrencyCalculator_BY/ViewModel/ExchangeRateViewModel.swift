@@ -4,6 +4,8 @@
 //  환율 화면의 비즈니스 로직을 처리하는 뷰 모델
 //  데이터 변환과 필터링 업데이트를 담당
 
+import Foundation
+
 class ExchangeRateViewModel: ViewModelProtocol {
     enum Action {
         case updateState(State)
@@ -23,12 +25,14 @@ class ExchangeRateViewModel: ViewModelProtocol {
     
     var action: ((Action) -> Void)?
     private(set) var state = State()
+    
     // ===== 통화 코드와 국가 이름 매핑 데이터 =====
-    private let currencyCountryMapping: [String: String]
+    var currencyCountryMapping: [String: String]
     
     // ===== 뷰 모델 초기화 =====
-    init(currencyCountryMapping: [String: String]) {
-        self.currencyCountryMapping = currencyCountryMapping
+    init() {
+        currencyCountryMapping = [:]
+        loadCurrencyCountryMapping() // 초기화 시 매핑 데이터 로드
     }
     
     // ===== 환율 데이터 가져오기 =====
@@ -50,6 +54,19 @@ class ExchangeRateViewModel: ViewModelProtocol {
             self?.action?(.updateState(self!.state))
         }
     }
+    
+    // ===== JSON 파일에서 통화-국가 매핑 데이터를 로드 =====
+    private func loadCurrencyCountryMapping() {
+        if let path = Bundle.main.path(forResource: "CurrencyCountryMapping", ofType: "json"),
+           let data = try? Data(contentsOf: URL(fileURLWithPath: path)),
+           let json = try? JSONSerialization.jsonObject(with: data, options: .mutableLeaves) as? [String: String] {
+            currencyCountryMapping = json
+            print("CurrencyCountryMapping loaded: \(currencyCountryMapping)") // 로드된 데이터 출력
+        } else {
+            print("Failed to load CurrencyCountryMapping.json")
+        }
+    }
+
     
     // ===== 검색어 업데이트 =====
     func updateSearchText(_ searchText: String) {
