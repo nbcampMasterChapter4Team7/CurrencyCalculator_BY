@@ -11,6 +11,9 @@ import SnapKit
 final class TableViewCell: UITableViewCell {
     static let id = "TableViewCell"
     
+    private let viewModel = BookmarkViewModel()
+    private var currencyCode: String = ""
+    
     // ===== 수직으로 정렬된 라벨들을 담는 스택뷰 생성 =====
     private let labelStackView: UIStackView = {
         let stackView = UIStackView()
@@ -47,12 +50,13 @@ final class TableViewCell: UITableViewCell {
         let button = UIButton()
         button.setImage(UIImage(systemName: "star"), for: .normal)
         button.tintColor = .systemYellow
-       return button
+        return button
     }()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         configureUI()
+        setupActions()
     }
     
     // ===== UI 구성 요소를 설정하고 배치 =====
@@ -83,6 +87,41 @@ final class TableViewCell: UITableViewCell {
         currencyLabel.text = currency
         countryLabel.text = country
         rateLabel.text = rate
+        currencyCode = currency
+        setupViewModelAction() // 뷰모델 액션 설정
+        updateBookmarksButton() // 버튼 이미지 업데이트
+    }
+    
+    // ===== 버튼 액션 설정 =====
+    private func setupActions() {
+        starButton.addTarget(self, action: #selector(starButtonTapped), for: .touchUpInside)
+    }
+    
+    // ===== viewModel Action 설정 =====
+    func setupViewModelAction() {
+        viewModel.action = { [weak self] action in
+            switch action {
+            case .updateBookmarks: self?.updateBookmarksButton()
+            }
+        }
+        viewModel.fetchBookmarks()
+    }
+    
+    // ===== 즐겨찾기 버튼 눌렀을 때 동작 =====
+    @objc
+    private func starButtonTapped() {
+        viewModel.toggleBookmark(currencyCode: currencyCode)
+        updateBookmarksButton() /// 버튼 이미지 업데이트
+    }
+    
+    // ===== 현재 즐겨찾기 상태에 따라 버튼의 이미지를 업데이트 =====
+    @objc
+    private func updateBookmarksButton() {
+        if viewModel.state.Bookmarks.contains(currencyCode) {
+            starButton.setImage(UIImage(systemName: "star.fill"), for: .normal)
+        } else {
+            starButton.setImage(UIImage(systemName: "star"), for: .normal)
+        }
     }
     
     required init?(coder: NSCoder) {
