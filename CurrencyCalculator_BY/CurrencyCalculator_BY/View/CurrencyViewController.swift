@@ -59,6 +59,19 @@ class CurrencyViewController: UIViewController {
         tableView.dataSource = self
         
         configureUI() // UI 구성
+        
+        // 목업 데이터 생성 (추후 삭제)
+        let mockRates = [
+            RateTrendViewModel(currency: "USD", rate: 1.12, previousRate: 1.10),
+            RateTrendViewModel(currency: "EUR", rate: 0.92, previousRate: 0.93),
+            RateTrendViewModel(currency: "JPY", rate: 110.5, previousRate: 110.0)
+        ]
+        
+        // 상승/하락 여부 판단 및 콘솔 출력 (추후 삭제)
+        for rate in mockRates {
+            let trend = rate.isRising ? "상승" : "하락"
+            print("Currency: \(rate.currency), Rate: \(rate.rate), Previous Rate: \(rate.previousRate), Trend: \(trend)")
+        }
     }
     
     // ===== UI 구성 및 제약 조건 설정 =====
