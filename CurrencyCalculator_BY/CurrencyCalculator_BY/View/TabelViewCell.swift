@@ -42,6 +42,14 @@ final class TableViewCell: UITableViewCell {
         return label
     }()
     
+    // ===== 즐겨찾기 상태를 나타내는 별 버튼 생성 =====
+    private let starButton: UIButton = {
+        let button = UIButton()
+        button.setImage(UIImage(systemName: "star"), for: .normal)
+        button.tintColor = .systemYellow
+       return button
+    }()
+    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         configureUI()
@@ -49,7 +57,7 @@ final class TableViewCell: UITableViewCell {
     
     // ===== UI 구성 요소를 설정하고 배치 =====
     private func configureUI() {
-        [labelStackView, rateLabel].forEach { contentView.addSubview($0) }
+        [labelStackView, rateLabel, starButton].forEach { contentView.addSubview($0) }
         [currencyLabel, countryLabel].forEach{ labelStackView.addArrangedSubview($0) }
         
         labelStackView.snp.makeConstraints { make in
@@ -58,9 +66,15 @@ final class TableViewCell: UITableViewCell {
         }
         
         rateLabel.snp.makeConstraints { make in
-            make.trailing.equalToSuperview().offset(-16)
             make.centerY.equalToSuperview()
             make.leading.equalTo(labelStackView.snp.trailing).offset(16)
+        }
+        
+        starButton.snp.makeConstraints { make in
+            make.leading.equalTo(rateLabel.snp.trailing).offset(16)
+            make.trailing.equalToSuperview().offset(-16)
+            make.centerY.equalToSuperview()
+            make.width.height.equalTo(24)
         }
     }
     
