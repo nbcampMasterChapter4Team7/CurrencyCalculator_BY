@@ -70,6 +70,7 @@ final class TableViewCell: UITableViewCell {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         configureUI()
         setupActions()
+        
     }
     
     // ===== UI 구성 설정 =====
@@ -111,15 +112,27 @@ final class TableViewCell: UITableViewCell {
         rateLabel.text = rate
         currencyCode = currency
         ExchangeRateVM = viewModel
+        
+        // 임의 데이터 설정
+        let previousRate = Double(rate)! + 0.4 // 이전 환율을 임의로 설정
+           rateTrendVM = RateTrendViewModel(currency: currency, rate: Double(rate)!, previousRate: previousRate)
+        
         updateBookmarksButton()
         trendIconSetup()
     }
     
     // ===== 상승하락 아이콘 설정 =====
     private func trendIconSetup() {
-        guard let isRising = rateTrendVM?.isRising else { return }
-        trendIconLabel.text = isRising ? "🔼" : "🔽"
+        guard let rateTrendVM = rateTrendVM else { return }
+        let difference = abs(rateTrendVM.rate - rateTrendVM.previousRate)
+        
+        if difference > 0.01 {
+            trendIconLabel.text = rateTrendVM.isRising ? "🔼" : "🔽"
+        } else {
+            trendIconLabel.text = "" // 아이콘을 표시하지 않음
+        }
     }
+
     
     // ===== 버튼 액션 설정 =====
     private func setupActions() {
