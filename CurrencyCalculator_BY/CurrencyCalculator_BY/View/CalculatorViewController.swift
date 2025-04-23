@@ -28,6 +28,7 @@ class CalculatorViewController: UIViewController {
     private let currencyLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 24, weight: .bold)
+        label.textColor = .label
         return label
     }()
     
@@ -35,7 +36,7 @@ class CalculatorViewController: UIViewController {
     private let countryLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 16)
-        label.textColor = .gray
+        label.textColor = .secondaryLabel
         return label
     }()
     
@@ -46,6 +47,8 @@ class CalculatorViewController: UIViewController {
         textField.borderStyle = .roundedRect
         textField.textAlignment = .center
         textField.placeholder = "달러(USD)를 입력하세요"
+        textField.backgroundColor = .systemBackground
+        textField.textColor = .secondaryLabel
         return textField
     }()
     
@@ -74,7 +77,6 @@ class CalculatorViewController: UIViewController {
     // ===== 뷰가 로드될 때 초기 설정 수행 =====
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
         navigationController?.navigationBar.prefersLargeTitles = true
         navigationItem.title = "환율 계산기"
         configureUI()
@@ -84,6 +86,7 @@ class CalculatorViewController: UIViewController {
     
     // ===== UI 구성 요소를 설정하고 배치 =====
     private func configureUI() {
+        view.backgroundColor = .systemBackground
         convertButton.addTarget(self, action: #selector(convertButtonTapped), for: .touchUpInside)
         [currencyLabel, countryLabel].forEach { labelStackView.addArrangedSubview($0) }
         [labelStackView, amountTextField, convertButton, resultLabel].forEach { view.addSubview($0) }
