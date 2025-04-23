@@ -51,7 +51,7 @@ class CurrencyViewController: UIViewController {
         label.isHidden = true
         return label
     }()
-
+    
     // ===== 뷰가 로드될 때 호출되는 메서드 =====
     override func viewDidLoad() {
         super.viewDidLoad()

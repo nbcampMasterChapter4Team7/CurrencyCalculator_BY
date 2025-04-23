@@ -7,16 +7,19 @@
 
 import Foundation
 import CoreData
-import UIKit
 
 final class LastViewedScreenService {
     
-    static let shared = LastViewedScreenService()  // 싱글톤 인스턴스 생성
-    private init() {}  // 외부에서 인스턴스 생성 불가
+    private let persistentContainer: NSPersistentContainer
+    
+    // 초기화 메서드에서 NSPersistentContainer를 받도록 변경
+    init(persistentContainer: NSPersistentContainer) {
+        self.persistentContainer = persistentContainer
+    }
     
     private var context: NSManagedObjectContext {
         // CoreData 컨텍스트 가져오기
-        (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+        persistentContainer.viewContext
     }
 
     // 마지막 화면 정보 저장 메서드(기존 데이터 삭제 후 새로 저장)
