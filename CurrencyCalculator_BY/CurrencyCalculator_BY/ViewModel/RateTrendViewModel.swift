@@ -2,86 +2,81 @@
 //  RateTrendViewModel.swift
 //  CurrencyCalculator_BY
 //
-//  Created by iOS study on 4/23/25.
-//  상승, 하락을 계산하는 비즈니스 로직
 
 import Foundation
 
-// ===== ViewModel의 상태 정의 =====
-struct ViewModelState {
-    var updatedRates: [RateTrendViewModel] = []
-}
-
-// ===== ViewModel의 액션 정의 =====
-enum ViewModelAction {
-    case updateRates
-}
-
-
-struct RateTrendViewModel: ViewModelProtocol {
-    typealias Action = ViewModelAction
-    typealias State = ViewModelState
+struct RateTrendState {
+    struct CurrencyRate {
+        let currencyCode: String
+        let rate: Double
+        let trend: TrendDirection?
+    }
     
-    // ===== 액션과 상태 =====
+    enum TrendDirection {
+        case up
+        case down
+        case none
+    }
+    
+    let currencyRates: [CurrencyRate]
+}
+
+class RateTrendViewModel: ViewModelProtocol {
+    // 프로토콜 구현
+    /// loadRates 액션을 트리거로 Core Data에서 오늘/어제 데이터를 불러오고 비교
+    enum Action {
+        case loadRates
+    }
+    
+    typealias State = RateTrendState
     var action: ((Action) -> Void)?
-    var state: State = ViewModelState()
+    private(set) var state = RateTrendState(currencyRates: [])
     
-    let currency: String
-    let rate: Double
-    let previousRate: Double
-    
-    // ===== 상승 여부를 판단하는 계산 프로퍼티 =====
-    var isRising: Bool {
-        return rate > previousRate
-    }
-    
-    // ===== Core Data에서 이전 환율 데이터를 가져오는 메서드 =====
-    static func fetchPreviousRates() -> [String: Double] {
-        guard let previousRates = CoreDataService.shared.fetchPreviousExchangeRates() else { return [:] }
-        var ratesDict: [String: Double] = [:]
-        previousRates.forEach { ratesDict[$0.currencyCode ?? ""] = $0.rate }
-        return ratesDict
-    }
-    
-    
-    // ===== 새 데이터를 비교하고 상태를 업데이트하는 메서드 수정 =====
-    static func compareAndUpdateRates(newRates: [RateTrendViewModel], nextUpdate: Date) -> [RateTrendViewModel] {
-        let previousRates = fetchPreviousRates()
-        var updatedViewModels: [RateTrendViewModel] = []
-
-        for newRate in newRates {
-            let previousRate = previousRates[newRate.currency] ?? 0.0
-            let difference = abs(newRate.rate - previousRate)
-
-            // 아이콘 표시 기준 수정
-            if difference > 0.01 {
-                let viewModel = RateTrendViewModel(
-                    currency: newRate.currency,
-                    rate: newRate.rate,
-                    previousRate: previousRate
-                )
-                updatedViewModels.append(viewModel)
-            } else {
-                // 아이콘을 표시하지 않을 때 여백 처리
-                var viewModel = RateTrendViewModel(
-                    currency: newRate.currency,
-                    rate: newRate.rate,
-                    previousRate: previousRate
-                )
-                viewModel.state.updatedRates.append(viewModel)
+    // init 초기화
+    init() {
+        self.action = { [weak self] action in
+            switch action {
+            case .loadRates:
+                self?.loadRateComparison()
             }
         }
-
-        // ===== Core Data에 새 데이터를 저장 =====
-        saveNewRatesToCoreData(newRates: newRates, nextUpdate: nextUpdate)
-        
-        return updatedViewModels
     }
     
-    // ===== Core Data에 새 데이터를 저장하는 메서드 수정 =====
-    static func saveNewRatesToCoreData(newRates: [RateTrendViewModel], nextUpdate: Date) {
-        newRates.forEach { rate in
-            _ = CoreDataService.shared.savePreviousExchangeRate(currencyCode: rate.currency, rate: rate.rate, lastUpdate: Date(), nextUpdate: nextUpdate)
+    private func loadRateComparison() {
+        /// 어제, 오늘의 환율 데이터를 CoreData에서 불러옴
+        let currentRates = CoreDataService.shared.fetchRates(isCurrent: true)
+        let previousRates = CoreDataService.shared.fetchRates(isCurrent: false)
+        
+        /// 어제 환율 데이터를 딕셔너리로 변환
+        let previousDict = Dictionary(uniqueKeysWithValues: previousRates.map { ($0.currencyCode ?? "", $0.rate) })
+        
+        /// 오늘 환율 데이터를 순회하며 비교
+        let result = currentRates.compactMap { current -> RateTrendState.CurrencyRate? in
+            guard let code = current.currencyCode else { return nil }
+            let newRate = current.rate
+            guard let oldRate = previousDict[code] else {
+                ///이전 데이터가 없는 경우, Trend 없이 반환하기
+                return RateTrendState.CurrencyRate(currencyCode: code, rate: newRate, trend: nil)
+            }
+            
+            /// abs(new - old) > 0.01이고, 이를 만족하면 .up 또는 .down, 아니면 .none으로 표시
+            let diff = abs(newRate - oldRate)
+            let trend: RateTrendState.TrendDirection? = {
+                if diff <= 0.01 {
+                    return RateTrendState.TrendDirection.none
+                } else if newRate > oldRate {
+                    return .up
+                } else {
+                    return .down
+                }
+            }()
+            
+            // 환율 코드, 새로운 환율, Trend 정보를 포함한 CurrencyRate
+            return RateTrendState.CurrencyRate(currencyCode: code, rate: newRate, trend: trend)
         }
+        
+        // 상태를 업데이트하여 새로운 환율과 Trend를 저장
+        self.state = RateTrendState(currencyRates: result)
+        self.action?(.loadRates) // 상태 업데이트 알림 명시
     }
 }

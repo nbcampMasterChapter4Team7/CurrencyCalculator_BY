@@ -136,7 +136,7 @@ class CalculatorViewController: UIViewController {
     @objc
     private func convertButtonTapped() {
         guard let amount = amountTextField.text,
-              let selectedCurrency = selectedCurrency else { return }
+              let _ = selectedCurrency else { return }
         
         calculatorVM.calculateConvertedAmount(amount: amount)
     }

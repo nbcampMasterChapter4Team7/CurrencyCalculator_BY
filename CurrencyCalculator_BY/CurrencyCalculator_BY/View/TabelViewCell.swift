@@ -11,11 +11,9 @@ import SnapKit
 final class TableViewCell: UITableViewCell {
     static let id = "TableViewCell"
     
-    /// 환율 추세 ViewModel
-    private var rateTrendVM: RateTrendViewModel?
-    /// 환율 ViewModel
+    /// 환율 추세, 환율 계산, 환율 계산 ViewModel
     private var ExchangeRateVM: ExchangeRateViewModel?
-    /// 통화 코드
+    var RateTrendVM = RateTrendViewModel()
     private var currencyCode: String = ""
     
     // ===== 레이블들을 담는 스택뷰 =====
@@ -104,35 +102,31 @@ final class TableViewCell: UITableViewCell {
             make.width.height.equalTo(24)
         }
     }
-    
+           
     // ===== 셀 구성 메서드 =====
-    func configureCell(currency: String, country: String, rate: String, viewModel: ExchangeRateViewModel) {
+    func configureCell(currency: String, country: String, rate: String, viewModel: ExchangeRateViewModel, rateTrendVM: RateTrendViewModel) {
         currencyLabel.text = currency
         countryLabel.text = country
         rateLabel.text = rate
         currencyCode = currency
         ExchangeRateVM = viewModel
-        
-        // 임의 데이터 설정
-        let previousRate = Double(rate)! + 0.4 // 이전 환율을 임의로 설정
-           rateTrendVM = RateTrendViewModel(currency: currency, rate: Double(rate)!, previousRate: previousRate)
-        
         updateBookmarksButton()
-        trendIconSetup()
-    }
-    
-    // ===== 상승하락 아이콘 설정 =====
-    private func trendIconSetup() {
-        guard let rateTrendVM = rateTrendVM else { return }
-        let difference = abs(rateTrendVM.rate - rateTrendVM.previousRate)
         
-        if difference > 0.01 {
-            trendIconLabel.text = rateTrendVM.isRising ? "🔼" : "🔽"
-        } else {
-            trendIconLabel.text = "" // 아이콘을 표시하지 않음
-        }
+        // RateTrendViewModel을 통해 추세 아이콘 설정
+            if let trend = RateTrendVM.state.currencyRates.first(where: { $0.currencyCode == currency })?.trend {
+                switch trend {
+                case .up:
+                    trendIconLabel.text = "🔼"
+                case .down:
+                    trendIconLabel.text = "🔽"
+                case .none:
+                    trendIconLabel.text = ""
+                }
+            } else {
+                trendIconLabel.text = ""
+            }
+            updateBookmarksButton()
     }
-
     
     // ===== 버튼 액션 설정 =====
     private func setupActions() {

@@ -12,11 +12,13 @@ class ExchangeRateViewModel: ViewModelProtocol {
     
     // ===== 뷰 모델의 상태를 나타내는 구조체 정의 =====
     struct State {
+        var updatedRates: [RateTrendViewModel] = []
         var rates: [(key: String, value: Double)] = [] // 환율 데이터 저장
         var filteredRates: [(key: String, value: Double)]? = nil // 필터링된 환율 데이터 저장
         var errorMessage: String? = nil // 오류 메시지 저장
         var searchText: String = "" // 검색어 저장
         var Bookmarks: [String] = [] // 즐겨찾기된 통화 코드 저장
+        
     }
     
     /// 액션을 처리하는 클로저

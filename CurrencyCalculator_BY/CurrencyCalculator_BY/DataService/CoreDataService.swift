@@ -10,46 +10,53 @@ import CoreData
 import UIKit
 
 class CoreDataService {
-    // ===== 싱글톤 패턴 적용 =====
+    
+    // 싱글턴 패턴+context 접근 관리(context는 항상 AppDelegate의 persistentContainer에서 가져옴)
     static let shared = CoreDataService()
     private init() {}
-
-    // ===== Core Data 컨텍스트 접근 =====
+    
     private var context: NSManagedObjectContext {
         return (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     }
-
-    // ===== 데이터 저장 메서드 =====
-    func savePreviousExchangeRate(currencyCode: String, rate: Double, lastUpdate: Date, nextUpdate: Date) -> Bool {
-        print("savePreviousExchangeRate called with currencyCode: \(currencyCode), rate: \(rate), lastUpdate: \(lastUpdate), nextUpdate: \(nextUpdate)")
-        let newRate = PreviousExchangeRate(context: context)
-        newRate.currencyCode = currencyCode
-        newRate.rate = rate
-        newRate.lastUpdate = lastUpdate
-        newRate.nextUpdate = nextUpdate
-
-        do {
-            try context.save()
-            print("Saving rate for \(currencyCode): \(rate)")
-            return true
-        } catch {
-            print("Failed to save previous exchange rate: \(error)")
-            return false
-        }
+    
+    // 데이터 불러오기 메서드(오늘 데이터 (isCurrent == true) 또는 어제 데이터 (false)만 가져옴)
+    func fetchRates(isCurrent: Bool) -> [PreviousExchangeRate] {
+        let request: NSFetchRequest<PreviousExchangeRate> = PreviousExchangeRate.fetchRequest()
+        request.predicate = NSPredicate(format: "isCurrent == %@", NSNumber(value: isCurrent))
+        return (try? context.fetch(request)) ?? []
     }
-
-    // ===== 데이터 불러오기 메서드 =====
-    func fetchPreviousExchangeRates() -> [PreviousExchangeRate]? {
-        print("fetchPreviousExchangeRates called")
-        let fetchRequest: NSFetchRequest<PreviousExchangeRate> = PreviousExchangeRate.fetchRequest()
-
-        do {
-            let previousRates = try context.fetch(fetchRequest)
-            print("Fetched rates: \(previousRates)")
-            return previousRates
-        } catch {
-            print("Failed to fetch previous exchange rates: \(error)")
-            return nil
+    
+    // (API에서 받아온 환율 데이터들을 저장/isCurrent == true이면 오늘, false면 어제로 구분)
+    // 기존 데이터 일괄 삭제 → 새 데이터 저장 → UserDefaults에 업데이트 시간 저장
+    func updateRatesCycle(rates: [String: Double], isCurrent: Bool, nextUpdate: Date) {
+        
+        let oldTodayRates = fetchRates(isCurrent: true)
+        
+        /// 1. 어제 데이터로 백업 (새로운 데이터가 오면 오늘로 덮어쓰기만 하고, 어제 데이터는 증발)
+        oldTodayRates.forEach {
+            let yesterday = PreviousExchangeRate(context: context)
+            yesterday.currencyCode = $0.currencyCode
+            yesterday.rate = $0.rate
+            yesterday.isCurrent = false
         }
+        /// 2. 기존 오늘 데이터만 삭제 (isCurrent == true)
+        let request: NSFetchRequest<PreviousExchangeRate> = PreviousExchangeRate.fetchRequest()
+        request.predicate = NSPredicate(format: "isCurrent == true")
+        let currentRates = (try? context.fetch(request)) ?? []
+        currentRates.forEach { context.delete($0) }
+        
+        /// 3. 새 오늘 데이터 저장 (isCurrent = true)
+        for (currencyCode, rate) in rates {
+            let rateEntity = PreviousExchangeRate(context: context)
+            rateEntity.currencyCode = currencyCode
+            rateEntity.rate = rate
+            rateEntity.isCurrent = true
+        }
+        
+        /// 4. 업데이트 시간 저장
+        UserDefaults.standard.set(nextUpdate, forKey: "nextUpdate")
+        
+        try? context.save()
     }
+    
 }
