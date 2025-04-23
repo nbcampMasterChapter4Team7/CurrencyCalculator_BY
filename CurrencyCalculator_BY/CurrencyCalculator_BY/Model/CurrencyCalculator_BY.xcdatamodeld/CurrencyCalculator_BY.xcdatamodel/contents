@@ -3,6 +3,10 @@
     <entity name="BookmarkCurrency" representedClassName="BookmarkCurrency" syncable="YES">
         <attribute name="currencyCode" attributeType="String"/>
     </entity>
+    <entity name="LastViewedScreen" representedClassName="LastViewedScreen" syncable="YES">
+        <attribute name="currencyCode" optional="YES" attributeType="String"/>
+        <attribute name="screenName" optional="YES" attributeType="String"/>
+    </entity>
     <entity name="PreviousExchangeRate" representedClassName="PreviousExchangeRate" syncable="YES" codeGenerationType="class">
         <attribute name="currencyCode" optional="YES" attributeType="String"/>
         <attribute name="isCurrent" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>

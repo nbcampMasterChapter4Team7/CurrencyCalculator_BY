@@ -38,6 +38,5 @@ class CalculatorViewModel: ViewModelProtocol {
         let convertedAmount = (amountValue * exchangeRate).rounded(toPlaces: 2)
         /// 결과값 형식 수정 (통화 기호 포함)
         action?(.updateResult("$\(String(format: "%.2f", amountValue)) → \(convertedAmount) \(currency)"))
-
     }
 }
