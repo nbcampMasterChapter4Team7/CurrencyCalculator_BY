@@ -13,6 +13,7 @@ import Alamofire
 // ===== 환율 정보를 관리하는 뷰 모델 인스턴스 생성 =====
 class CurrencyViewController: UIViewController {
     var ExchangeRateVM = ExchangeRateViewModel()
+    var RateTrendVM = RateTrendViewModel()
     
     // ===== 지원되는 인터페이스 방향 설정 =====
     override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
@@ -51,8 +52,11 @@ class CurrencyViewController: UIViewController {
     // ===== 뷰가 로드될 때 호출되는 메서드 =====
     override func viewDidLoad() {
         super.viewDidLoad()
-        bindViewModel() // 뷰 모델과 바인딩
+        bindViewModel() // ExchangeRateViewModel과 바인딩
         ExchangeRateVM.fetchData() // 환율 데이터 가져오기
+        
+        bindRateTrendViewModel() // RateTrendViewModel과 바인딩
+        RateTrendVM.action?(.loadRates) // 환율 로딩 트리거
         
         searchBar.delegate = self
         tableView.delegate = self
@@ -84,7 +88,7 @@ class CurrencyViewController: UIViewController {
         }
     }
     
-    // ===== 뷰 모델과 바인딩 =====
+    // ===== 즐겨찾기 업데이트 시 테이블 뷰 다시 로드 (ExchangeRateViewModel 바인딩) =====
     private func bindViewModel() {
         ExchangeRateVM.action = { [weak self] action in
             switch action {
@@ -100,12 +104,23 @@ class CurrencyViewController: UIViewController {
         }
     }
     
+    // ===== RateTrendVM 상태가 업데이트되면 테이블 뷰를 다시 로드(바인딩) =====
+    private func bindRateTrendViewModel() {
+        RateTrendVM.action = { [weak self] action in
+            switch action {
+            case .loadRates:
+                self?.tableView.reloadData()
+            }
+        }
+    }
+    
     // ===== 오류 메시지를 표시하는 알림 생성 =====
     private func showAlert(message: String) {
         let alert = UIAlertController(title: "오류", message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "확인", style: .default))
         present(alert, animated: true)
     }
+    
 }
 
 // ===== UISearchBarDelegate 확장 =====

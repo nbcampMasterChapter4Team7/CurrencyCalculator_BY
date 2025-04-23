@@ -11,7 +11,6 @@ extension CurrencyViewController: UITableViewDataSource, UITableViewDelegate {
     
     // ===== 사용자가 테이블 뷰의 셀을 선택했을 때 호출됨 =====
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        /// CalculatorViewController 인스턴스 생성
         let calculatorVC = CalculatorViewController()
         
         /// 선택된 셀의 환율 정보를 가져옴
@@ -54,8 +53,8 @@ extension CurrencyViewController: UITableViewDataSource, UITableViewDelegate {
         let currencyCode = dataSource[indexPath.row].key
         let countryName = ExchangeRateVM.currencyCountryMapping[currencyCode] ?? "Unknown"
         
-        /// 셀에 통화, 국가, 환율 정보를 설정
-        cell.configureCell(currency: currencyCode, country: countryName, rate: String(format: "%.4f", rate), viewModel: ExchangeRateVM)
+        /// 셀에 통화 코드, 국가 이름, 환율, 그리고 뷰 모델을 설정하여 셀을 구성
+        cell.configureCell(currency: currencyCode, country: countryName, rate: String(format: "%.4f", rate), viewModel: ExchangeRateVM, rateTrendVM: RateTrendVM)
         
         return cell
     }

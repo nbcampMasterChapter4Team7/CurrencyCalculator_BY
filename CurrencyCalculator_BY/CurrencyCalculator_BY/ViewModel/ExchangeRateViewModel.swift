@@ -12,11 +12,13 @@ class ExchangeRateViewModel: ViewModelProtocol {
     
     // ===== 뷰 모델의 상태를 나타내는 구조체 정의 =====
     struct State {
+        var updatedRates: [RateTrendViewModel] = []
         var rates: [(key: String, value: Double)] = [] // 환율 데이터 저장
         var filteredRates: [(key: String, value: Double)]? = nil // 필터링된 환율 데이터 저장
         var errorMessage: String? = nil // 오류 메시지 저장
         var searchText: String = "" // 검색어 저장
         var Bookmarks: [String] = [] // 즐겨찾기된 통화 코드 저장
+        
     }
     
     /// 액션을 처리하는 클로저
@@ -71,7 +73,7 @@ class ExchangeRateViewModel: ViewModelProtocol {
     // ===== 검색 텍스트 업데이트 =====
     func updateSearchText(_ searchText: String) {
         state.searchText = searchText
-        filterRates(searchText: searchText) // 검색어에 따라 필터링
+        filterRates(searchText: searchText) /// 검색어에 따라 필터링
     }
     
     // ===== 환율 필터링 =====
@@ -80,25 +82,25 @@ class ExchangeRateViewModel: ViewModelProtocol {
         let allRates = state.rates
 
         if trimmedSearchText.isEmpty {
-            // 즐겨찾기된 데이터와 일반 데이터를 분리하여 정렬
+            /// 즐겨찾기된 데이터와 일반 데이터를 분리하여 정렬
             state.filteredRates = allRates.sorted { (first, second) in
                 let isFirstBookmarked = state.Bookmarks.contains(first.key)
                 let isSecondBookmarked = state.Bookmarks.contains(second.key)
                 
-                // 즐겨찾기된 데이터는 상단에 배치하고, 각각 알파벳 오름차순으로 정렬
+                /// 즐겨찾기된 데이터는 상단에 배치하고, 각각 알파벳 오름차순으로 정렬
                 if isFirstBookmarked == isSecondBookmarked {
                     return first.key < second.key
                 }
                 return isFirstBookmarked && !isSecondBookmarked
             }
         } else {
-            // 검색어에 따라 필터링 및 정렬
+            /// 검색어에 따라 필터링 및 정렬
             let results = allRates.filter {
                 $0.key.lowercased().contains(trimmedSearchText.lowercased()) ||
                 (currencyCountryMapping[$0.key]?.lowercased().contains(trimmedSearchText.lowercased()) ?? false)
             }
             
-            // 검색 결과에서도 즐겨찾기된 데이터는 상단에 오도록 정렬
+            /// 검색 결과에서도 즐겨찾기된 데이터는 상단에 오도록 정렬
             state.filteredRates = results.sorted { (first, second) in
                 let isFirstBookmarked = state.Bookmarks.contains(first.key)
                 let isSecondBookmarked = state.Bookmarks.contains(second.key)
@@ -117,13 +119,13 @@ class ExchangeRateViewModel: ViewModelProtocol {
     // ===== 즐겨찾기 기능 통합 =====
     func toggleBookmark(currencyCode: String) {
         if state.Bookmarks.contains(currencyCode) {
-            removeBookmarks(currencyCode: currencyCode) // 즐겨찾기 제거
+            removeBookmarks(currencyCode: currencyCode) /// 즐겨찾기 제거
         } else {
-            addBookmarks(currencyCode: currencyCode) // 즐겨찾기 추가
+            addBookmarks(currencyCode: currencyCode) /// 즐겨찾기 추가
         }
-        fetchBookmarks() // 즐겨찾기 목록 갱신
-        sortAndFilterRates() // 즐겨찾기 갱신 후 정렬 및 필터링
-        action?(.updateBookmarks) // 즐겨찾기 업데이트 액션 호출
+        fetchBookmarks() /// 즐겨찾기 목록 갱신
+        sortAndFilterRates() /// 즐겨찾기 갱신 후 정렬 및 필터링
+        action?(.updateBookmarks) /// 즐겨찾기 업데이트 액션 호출
     }
     
     // ===== 환율 정렬 및 필터링 =====
@@ -133,20 +135,20 @@ class ExchangeRateViewModel: ViewModelProtocol {
             let isFirstBookmarked = state.Bookmarks.contains(first.key)
             let isSecondBookmarked = state.Bookmarks.contains(second.key)
             
-            // 즐겨찾기된 데이터는 상단에 배치하고, 각각 알파벳 오름차순으로 정렬
+            /// 즐겨찾기된 데이터는 상단에 배치하고, 각각 알파벳 오름차순으로 정렬
             if isFirstBookmarked == isSecondBookmarked {
                 return first.key < second.key
             }
             return isFirstBookmarked && !isSecondBookmarked
         }
-        action?(.updateState(state)) // 상태 업데이트 액션 호출
+        action?(.updateState(state)) /// 상태 업데이트 액션 호출
     }
     
     // ===== 즐겨찾기 추가 =====
     private func addBookmarks(currencyCode: String) {
         let bookmark = BookmarkCurrency(context: context)
         bookmark.currencyCode = currencyCode
-        saveContext() // 컨텍스트 저장
+        saveContext()
     }
     
     // ===== 즐겨찾기 제거 =====
@@ -160,7 +162,7 @@ class ExchangeRateViewModel: ViewModelProtocol {
             for bookmark in bookmarks {
                 context.delete(bookmark)
             }
-            saveContext() // 컨텍스트 저장
+            saveContext()
         } catch {
             /// 삭제 실패 시 콘솔에 오류 메시지 출력
             print("Failed to remove favorite: \(error)")
