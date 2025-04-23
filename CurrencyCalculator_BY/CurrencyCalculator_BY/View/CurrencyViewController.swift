@@ -29,12 +29,15 @@ class CurrencyViewController: UIViewController {
     private let searchBar: UISearchBar = {
         let searchBar = UISearchBar()
         searchBar.placeholder = "통화 검색"
+        searchBar.searchTextField.textColor = .label
+        searchBar.backgroundColor = .secondarySystemBackground
         return searchBar
     }()
     
     // ===== 테이블 뷰 설정 및 셀 등록 =====
     private lazy var tableView: UITableView = {
         let tableView = UITableView()
+        tableView.backgroundColor = .systemBackground
         tableView.register(TableViewCell.self, forCellReuseIdentifier: TableViewCell.id)
         return tableView
     }()
@@ -43,7 +46,7 @@ class CurrencyViewController: UIViewController {
     lazy var filterLabel: UILabel = {
         let label = UILabel()
         label.text = "검색 결과 없음"
-        label.textColor = .gray
+        label.textColor = .secondaryLabel
         label.textAlignment = .center
         label.isHidden = true
         return label
@@ -67,9 +70,9 @@ class CurrencyViewController: UIViewController {
     
     // ===== UI 구성 및 제약 조건 설정 =====
     private func configureUI() {
+        view.backgroundColor = .systemBackground
         navigationController?.navigationBar.prefersLargeTitles = true
         navigationItem.title = "환율 정보"
-        view.backgroundColor = .white
         tableView.addSubview(filterLabel) // 필터 라벨을 테이블 뷰에 추가
         [searchBar, tableView].forEach { view.addSubview($0) } // 검색 바와 테이블 뷰를 뷰에 추가
         

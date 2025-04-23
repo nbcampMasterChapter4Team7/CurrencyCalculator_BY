@@ -73,6 +73,7 @@ final class TableViewCell: UITableViewCell {
     
     // ===== UI 구성 설정 =====
     private func configureUI() {
+        contentView.backgroundColor = .systemBackground
         [labelStackView, rateLabel, trendIconLabel, starButton].forEach { contentView.addSubview($0) }
         [currencyLabel, countryLabel].forEach{ labelStackView.addArrangedSubview($0) }
         
