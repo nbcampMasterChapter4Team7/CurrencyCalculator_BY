@@ -10,7 +10,7 @@ import UIKit
 import SnapKit
 
 // ===== CalculatorViewController 클래스 정의 =====
-class CalculatorViewController: UIViewController {
+final class CalculatorViewController: UIViewController {
     var selectedCurrency: String?
     var selectedCountry: String?
     var calculatorVM = CalculatorViewModel() ///  뷰모델 인스턴스 생성

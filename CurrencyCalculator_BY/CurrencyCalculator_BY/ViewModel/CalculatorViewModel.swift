@@ -9,7 +9,7 @@
 import Foundation
 
 // ===== CalculatorViewModel 클래스 정의 =====
-class CalculatorViewModel: ViewModelProtocol {
+final class CalculatorViewModel: ViewModelProtocol {
     enum Action {
         case updateResult(String)
     }

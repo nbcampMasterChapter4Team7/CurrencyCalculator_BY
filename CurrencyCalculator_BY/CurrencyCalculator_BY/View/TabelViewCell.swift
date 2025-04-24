@@ -13,7 +13,6 @@ final class TableViewCell: UITableViewCell {
     
     /// 환율 추세, 환율 계산, 환율 계산 ViewModel
     private var ExchangeRateVM: ExchangeRateViewModel?
-    var RateTrendVM = RateTrendViewModel()
     private var currencyCode: String = ""
     
     // ===== 레이블들을 담는 스택뷰 =====
@@ -105,28 +104,16 @@ final class TableViewCell: UITableViewCell {
     }
            
     // ===== 셀 구성 메서드 =====
-    func configureCell(currency: String, country: String, rate: String, viewModel: ExchangeRateViewModel, rateTrendVM: RateTrendViewModel) {
-        currencyLabel.text = currency
+    func configureCell(exchangeRate: ExchangeRate, country: String, viewModel: ExchangeRateViewModel) {
+        currencyLabel.text = exchangeRate.currencyCode
         countryLabel.text = country
-        rateLabel.text = rate
-        currencyCode = currency
+        rateLabel.text = String(format: "%.4f", exchangeRate.rate)
+        currencyCode = exchangeRate.currencyCode
         ExchangeRateVM = viewModel
-        updateBookmarksButton()
         
-        // RateTrendViewModel을 통해 추세 아이콘 설정
-            if let trend = RateTrendVM.state.currencyRates.first(where: { $0.currencyCode == currency })?.trend {
-                switch trend {
-                case .up:
-                    trendIconLabel.text = "🔼"
-                case .down:
-                    trendIconLabel.text = "🔽"
-                case .none:
-                    trendIconLabel.text = ""
-                }
-            } else {
-                trendIconLabel.text = ""
-            }
-            updateBookmarksButton()
+        trendIconLabel.text = exchangeRate.rateChangeStatus.icon
+        
+        updateBookmarksButton()
     }
     
     // ===== 버튼 액션 설정 =====

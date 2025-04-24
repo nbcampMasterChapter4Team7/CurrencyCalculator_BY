@@ -11,9 +11,9 @@ import SnapKit
 import Alamofire
 
 // ===== 환율 정보를 관리하는 뷰 모델 인스턴스 생성 =====
-class CurrencyViewController: UIViewController {
+final class CurrencyViewController: UIViewController {
     var ExchangeRateVM = ExchangeRateViewModel()
-    var RateTrendVM = RateTrendViewModel()
+    var RateTrendVM = ExchangeRateTrendViewModel(exchangeRateManager: ExchangeRateManager())
     
     // ===== 지원되는 인터페이스 방향 설정 =====
     override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
@@ -58,9 +58,9 @@ class CurrencyViewController: UIViewController {
         bindViewModel() // ExchangeRateViewModel과 바인딩
         ExchangeRateVM.fetchData() // 환율 데이터 가져오기
         
-        bindRateTrendViewModel() // RateTrendViewModel과 바인딩
-        RateTrendVM.action?(.loadRates) // 환율 로딩 트리거
-        
+        bindRateTrendViewModel()
+        RateTrendVM.action?(.fetchExchangeRates)
+
         searchBar.delegate = self
         tableView.delegate = self
         tableView.dataSource = self
@@ -105,15 +105,23 @@ class CurrencyViewController: UIViewController {
                 self?.tableView.reloadData() // 즐겨찾기 업데이트 시 테이블 뷰 다시 로드
             }
         }
-        
     }
     
-    // ===== RateTrendVM 상태가 업데이트되면 테이블 뷰를 다시 로드(바인딩) =====
+    // RateTrendVM의 환율 데이터를 바인딩하여 수신하는 클로저 설정
     private func bindRateTrendViewModel() {
-        RateTrendVM.action = { [weak self] action in
-            switch action {
-            case .loadRates:
-                self?.tableView.reloadData()
+        RateTrendVM.bindExchangeRates { exchangeRates in
+            // 수신된 환율 데이터의 개수를 출력하고 각 환율 데이터를 순회하며 통화 코드, 환율, 상태를 출력
+            //TODO: 테스트 코드 => print("ViewController 수신된 환율 데이터: \(exchangeRates.count)건")
+            exchangeRates.forEach { rate in
+                //TODO: 테스트 코드 (삭제해도 되지만 업데이트 전인데 확인을 위해 남겨둠)
+                print(" \(rate.currencyCode): \(rate.rate), 상태: \(rate.rateChangeStatus)")
+            }
+        }
+        
+        // RateTrendVM의 오류를 바인딩하여 수신하는 클로저 설정
+        RateTrendVM.bindError { error in
+            if let error = error {
+                print("오류 발생: \(error.localizedDescription)")
             }
         }
     }
