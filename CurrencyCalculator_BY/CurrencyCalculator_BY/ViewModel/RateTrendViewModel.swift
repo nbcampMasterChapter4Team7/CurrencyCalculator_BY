@@ -57,12 +57,9 @@ class RateTrendViewModel: ViewModelProtocol {
         /// 어제, 오늘의 환율 데이터를 CoreData에서 불러옴
         let currentRates = CoreDataService.shared.fetchRates(isCurrent: true)
         let previousRates = CoreDataService.shared.fetchRates(isCurrent: false)
-        
-        let rates = CoreDataService.shared.fetchRates(isCurrent: true)
-//        print("오늘: \(rates)")
-//        
-//        let ratesFalse = CoreDataService.shared.fetchRates(isCurrent: false)
-//        print("어제: \(ratesFalse)")
+    
+        print("오늘: \(currentRates)")
+        print("어제: \(previousRates)")
         
         /// 어제 환율 데이터를 딕셔너리로 변환
         let previousDict = Dictionary(uniqueKeysWithValues: previousRates.map { ($0.currencyCode ?? "", $0.rate) })
@@ -94,6 +91,5 @@ class RateTrendViewModel: ViewModelProtocol {
         
         // 상태를 업데이트하여 새로운 환율과 Trend를 저장
         self.state = RateTrendState(currencyRates: result)
-        self.action?(.loadRates) // 상태 업데이트 알림 명시
     }
 }

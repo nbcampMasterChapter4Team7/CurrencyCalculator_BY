@@ -105,6 +105,7 @@ class CurrencyViewController: UIViewController {
                 self?.tableView.reloadData() // 즐겨찾기 업데이트 시 테이블 뷰 다시 로드
             }
         }
+        
     }
     
     // ===== RateTrendVM 상태가 업데이트되면 테이블 뷰를 다시 로드(바인딩) =====
