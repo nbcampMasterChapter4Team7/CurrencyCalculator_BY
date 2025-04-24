@@ -123,7 +123,6 @@ class CurrencyViewController: UIViewController {
         alert.addAction(UIAlertAction(title: "확인", style: .default))
         present(alert, animated: true)
     }
-    
 }
 
 // ===== UISearchBarDelegate 확장 =====

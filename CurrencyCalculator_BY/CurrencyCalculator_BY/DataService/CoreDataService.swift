@@ -39,6 +39,7 @@ class CoreDataService {
             yesterday.rate = $0.rate
             yesterday.isCurrent = false
         }
+        
         /// 2. 기존 오늘 데이터만 삭제 (isCurrent == true)
         let request: NSFetchRequest<PreviousExchangeRate> = PreviousExchangeRate.fetchRequest()
         request.predicate = NSPredicate(format: "isCurrent == true")
@@ -58,5 +59,4 @@ class CoreDataService {
         
         try? context.save()
     }
-    
 }
