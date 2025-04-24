@@ -3,13 +3,14 @@
     <entity name="BookmarkCurrency" representedClassName="BookmarkCurrency" syncable="YES">
         <attribute name="currencyCode" attributeType="String"/>
     </entity>
+    <entity name="ExchangeRateEntity" representedClassName="ExchangeRateEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="beforeRate" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="currencyCode" attributeType="String"/>
+        <attribute name="nowRate" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="timeStamp" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+    </entity>
     <entity name="LastViewedScreen" representedClassName="LastViewedScreen" syncable="YES">
         <attribute name="currencyCode" optional="YES" attributeType="String"/>
         <attribute name="screenName" optional="YES" attributeType="String"/>
-    </entity>
-    <entity name="PreviousExchangeRate" representedClassName="PreviousExchangeRate" syncable="YES" codeGenerationType="class">
-        <attribute name="currencyCode" optional="YES" attributeType="String"/>
-        <attribute name="isCurrent" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
-        <attribute name="rate" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
     </entity>
 </model>

@@ -3,7 +3,7 @@ import UIKit
 import CoreData
 
 // ===== ExchangeRateViewModel 클래스 정의: 뷰 모델 프로토콜 구현 =====
-class ExchangeRateViewModel: ViewModelProtocol {
+final class ExchangeRateViewModel: ViewModelProtocol {
     // ===== 뷰 모델에서 발생할 수 있는 액션 정의 =====
     enum Action {
         case updateState(State) // 상태 업데이트 액션
@@ -12,7 +12,6 @@ class ExchangeRateViewModel: ViewModelProtocol {
     
     // ===== 뷰 모델의 상태를 나타내는 구조체 정의 =====
     struct State {
-        var updatedRates: [RateTrendViewModel] = []
         var rates: [(key: String, value: Double)] = [] // 환율 데이터 저장
         var filteredRates: [(key: String, value: Double)]? = nil // 필터링된 환율 데이터 저장
         var errorMessage: String? = nil // 오류 메시지 저장
@@ -40,12 +39,15 @@ class ExchangeRateViewModel: ViewModelProtocol {
     
     // ===== 환율 데이터 가져오기 =====
     func fetchData() {
-        CurrencyService.shared.fetchRates { [weak self] result in
+        CurrencyService.shared.fetchExchangeRates { [weak self] result in
             switch result {
             case .success(let rates):
                 /// 환율 데이터를 키 기준으로 정렬
-                let sortedRates = rates.sorted(by: { $0.key < $1.key })
+                let sortedRates = rates
+                    .map { ($0.currencyCode, $0.rate) } // ExchangeRate → 튜플로 변환
+                    .sorted(by: { $0.0 < $1.0 })        // key 기준 정렬
                 self?.state.rates = sortedRates
+
                 self?.state.errorMessage = nil
                 /// 검색어에 따라 환율 필터링
                 self?.filterRates(searchText: self?.state.searchText ?? "")

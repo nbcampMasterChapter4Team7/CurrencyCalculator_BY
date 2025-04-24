@@ -2,7 +2,21 @@
 //  ExchangeRate.swift
 //  CurrencyCalculator_BY
 //
-//  Created by iOS study on 4/17/25.
-//  환율 정보를 관리하는 모델 파일
-//  특정 통화 간의 환율 데이터를 저장하고 처리
+//  Created by iOS study on 4/24/25.
+//
 
+import Foundation
+
+struct ExchangeRate {
+    let currencyCode: String
+    let rate: Double
+    let timestamp: Date
+    var rateChangeStatus: RateChangeStatus = .none
+    
+    init(currencyCode: String, rate: Double, timestamp: Date = Date(), rateChangeStatus: RateChangeStatus = .none) {
+        self.currencyCode = currencyCode
+        self.rate = rate
+        self.timestamp = timestamp
+        self.rateChangeStatus = rateChangeStatus
+    }
+}
