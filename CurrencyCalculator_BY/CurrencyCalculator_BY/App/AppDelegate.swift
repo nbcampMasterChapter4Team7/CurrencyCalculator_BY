@@ -11,31 +11,26 @@ import CoreData
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
-    var window: UIWindow?
-
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        
-        let window = UIWindow(frame: UIScreen.main.bounds)
-        window.rootViewController = UINavigationController(rootViewController: CurrencyViewController())
-        window.makeKeyAndVisible()
-        self.window = window
+    
+    func application(
+        _ application: UIApplication,
+        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
+    ) -> Bool {
         return true
     }
 
-    // MARK: - Core Data stack -코어 데이터 스택
-
+    // MARK: - Core Data stack
     lazy var persistentContainer: NSPersistentContainer = {
         let container = NSPersistentContainer(name: "CurrencyCalculator_BY")
-        container.loadPersistentStores(completionHandler: { (storeDescription, error) in
+        container.loadPersistentStores { _, error in
             if let error = error as NSError? {
-                fatalError("Unresolved error \(error), \(error.userInfo)")
+                fatalError("Unresolved CoreData error: \(error), \(error.userInfo)")
             }
-        })
+        }
         return container
     }()
 
-    // MARK: - Core Data Saving support -코어 데이터 저장
-
+    // MARK: - Core Data 저장
     func saveContext () {
         let context = persistentContainer.viewContext
         if context.hasChanges {
@@ -43,9 +38,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 try context.save()
             } catch {
                 let nserror = error as NSError
-                fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
+                fatalError("CoreData 저장 실패: \(nserror), \(nserror.userInfo)")
             }
         }
     }
-
 }

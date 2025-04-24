@@ -29,23 +29,40 @@ class RateTrendViewModel: ViewModelProtocol {
     }
     
     typealias State = RateTrendState
-    var action: ((Action) -> Void)?
+    var action: ((Action) -> Void)? {
+        didSet {
+            self.action = { [weak self] action in
+                switch action {
+                case .loadRates:
+                    self?.loadRateComparison()
+                }
+            }
+        }
+    }
+    
     private(set) var state = RateTrendState(currencyRates: [])
     
     // init 초기화
     init() {
-        self.action = { [weak self] action in
-            switch action {
-            case .loadRates:
-                self?.loadRateComparison()
-            }
-        }
+        //영원히 불리지 않는.. 33번 didSet으로 설정해서 액션값이 변경됐을때 코드가 불리도록 변경
+//        self.action = { [weak self] action in
+//            switch action {
+//            case .loadRates:
+//                self?.loadRateComparison()
+//            }
+//        }
     }
     
     private func loadRateComparison() {
         /// 어제, 오늘의 환율 데이터를 CoreData에서 불러옴
         let currentRates = CoreDataService.shared.fetchRates(isCurrent: true)
         let previousRates = CoreDataService.shared.fetchRates(isCurrent: false)
+        
+        let rates = CoreDataService.shared.fetchRates(isCurrent: true)
+//        print("오늘: \(rates)")
+//        
+//        let ratesFalse = CoreDataService.shared.fetchRates(isCurrent: false)
+//        print("어제: \(ratesFalse)")
         
         /// 어제 환율 데이터를 딕셔너리로 변환
         let previousDict = Dictionary(uniqueKeysWithValues: previousRates.map { ($0.currencyCode ?? "", $0.rate) })
