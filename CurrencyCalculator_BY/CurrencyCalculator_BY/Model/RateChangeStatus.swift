@@ -19,7 +19,7 @@ enum RateChangeStatus {
         case .down:
             return "⬇️"
         case .none:
-            return ""
+            return "    "
         }
     }
 }
