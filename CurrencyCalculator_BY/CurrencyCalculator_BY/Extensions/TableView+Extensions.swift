@@ -53,13 +53,17 @@ extension CurrencyViewController: UITableViewDataSource, UITableViewDelegate {
         let currencyCode = dataSource[indexPath.row].key
         let countryName = ExchangeRateVM.currencyCountryMapping[currencyCode] ?? "Unknown"
         
-        /// 셀에 통화 코드, 국가 이름, 환율, 그리고 뷰 모델을 설정하여 셀을 구성
-//        let exchangeRate = ExchangeRate(currencyCode: currencyCode, rate: String(format: "%.4f", rate), timestamp: Date())
-//        cell.configureCell(exchangeRate: exchangeRate, currency: currencyCode, country: countryName, rate: String(format: "%.4f", rate), viewModel: ExchangeRateVM, rateTrendVM: RateTrendVM)
+        let rateChangeStatus = RateTrendVM.getRateChangeStatus(for: currencyCode)
         
-        let exchangeRate = ExchangeRate(currencyCode: currencyCode, rate: rate, timestamp: Date())
+        let exchangeRate = ExchangeRate(
+            currencyCode: currencyCode,
+            rate: rate,
+            timestamp: Date(),
+            rateChangeStatus: rateChangeStatus
+        )
+        
         cell.configureCell(exchangeRate: exchangeRate, country: countryName, viewModel: ExchangeRateVM)
-
+        
         
         
         return cell

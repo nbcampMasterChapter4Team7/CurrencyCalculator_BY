@@ -25,7 +25,7 @@ class ExchangeRateManager {
         
         do {
             // 기존의 환율 정보를 가져옴
-            let results = try self.context.fetch(fetchRequest)
+            let results = try context.fetch(fetchRequest)
             let exchangeRate: ExchangeRateEntity
             
             if let existingRate = results.first {
@@ -37,10 +37,11 @@ class ExchangeRateManager {
                     exchangeRate.beforeRate = exchangeRate.nowRate
                     exchangeRate.nowRate = rate
                     exchangeRate.timeStamp = timestamp
+                    print("\(timestamp)")
                 }
             } else {
                 // 새로운 데이터일 경우 새로 생성
-                exchangeRate = ExchangeRateEntity(context: self.context)
+                exchangeRate = ExchangeRateEntity(context: context)
                 exchangeRate.currencyCode = currencyCode
                 exchangeRate.beforeRate = rate
                 exchangeRate.nowRate = rate
@@ -48,7 +49,7 @@ class ExchangeRateManager {
             }
             
             // 변경 사항 저장
-            try self.context.save()
+            try context.save()
         } catch {
             print("Error saving exchange rate: \(error)")
         }
@@ -61,7 +62,7 @@ class ExchangeRateManager {
         
         do {
             // 요청 결과를 가져옴
-            let results = try self.context.fetch(fetchRequest)
+            let results = try context.fetch(fetchRequest)
             if let rate = results.first {
                 return (beforeRate: rate.beforeRate, nowRate: rate.nowRate)
             }
@@ -78,7 +79,7 @@ class ExchangeRateManager {
         
         do {
             // 모든 환율 정보를 가져옴
-            let results = try self.context.fetch(fetchRequest)
+            let results = try context.fetch(fetchRequest)
             
             return results.map { rate in
                 return (currencyCode: rate.currencyCode ?? "", beforeRate: rate.beforeRate, nowRate: rate.nowRate)

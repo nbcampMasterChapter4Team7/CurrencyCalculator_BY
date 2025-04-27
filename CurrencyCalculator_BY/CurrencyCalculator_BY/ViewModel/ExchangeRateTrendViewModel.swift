@@ -123,4 +123,10 @@ final class ExchangeRateTrendViewModel: ViewModelProtocol {
             rateChangeStatus: status // 상태 포함한 환율 반환
         )
     }
+    
+    // ExchangeRateTrendViewModel.swift 안에 추가
+    func getRateChangeStatus(for currencyCode: String) -> RateChangeStatus {
+        return exchangeRateManager.getRateChangeStatus(for: currencyCode)
+    }
+
 }

@@ -112,7 +112,7 @@ final class TableViewCell: UITableViewCell {
         ExchangeRateVM = viewModel
         
         trendIconLabel.text = exchangeRate.rateChangeStatus.icon
-        
+
         updateBookmarksButton()
     }
     
